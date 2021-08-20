@@ -9,7 +9,7 @@
   "source": "./src/index.ts",
   "scripts": {
     "test": "jest",
-    "build": "yarn clean && tsc --declaration --module es2015 --outdir module && tsc --module commonjs --outdir lib && yarn build-deno",
+    "build": "webpack --mode production",
     "clean": "rm -rf lib && rm -rf module && rm -rf deno_lib",
     "doc": "typedoc src/index.ts",
     "build-deno": "denoify",
@@ -39,8 +39,11 @@
     "prettier": "^2.3.2",
     "standard-version": "^9.3.0",
     "ts-jest": "^26.5.2",
+    "ts-loader": "^9.2.5",
     "ts-node": "^9.1.1",
     "typedoc": "^0.20.28",
-    "typescript": "^4.2.2"
+    "typescript": "^4.3.5",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
   }
 }
