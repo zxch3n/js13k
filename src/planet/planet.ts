@@ -36,7 +36,7 @@ export class Planet extends Sprite {
   }
 
   *tilePositions(scale = 1): Generator<LocalPosition> {
-    const step = Math.max(TILE_SIZE / scale, 1);
+    const step = Math.max(TILE_SIZE / Math.max(scale, 1), 1);
     for (let x = 0; x < TILE_NUM; x += step) {
       for (
         let y = Math.max(this.r * CORE_RATE, this.r - 100, 0);

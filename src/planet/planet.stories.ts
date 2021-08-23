@@ -15,10 +15,22 @@ function createPlanet() {
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);
   const stage = new Stage(canvas);
-  stage.addChild(new Planet({ x: 220, y: 200 }, 50));
-  const start = performance.now();
+  stage.addChild(new Planet({ x: 400, y: 300 }, 50));
   stage.draw();
-  console.log(`${performance.now() - start}ms`);
+  let factor = 1.01;
+  requestAnimationFrame(function run() {
+    stage.scale = stage.scale * factor;
+    ctx!.fillStyle = 'black';
+    ctx!.fillRect(0, 0, 800, 600);
+    stage.draw();
+    if (stage.scale > 4) {
+      factor = 0.99;
+    } else if (stage.scale < 0.5) {
+      factor = 1.01;
+    }
+
+    requestAnimationFrame(run);
+  });
   return canvas;
 }
 
