@@ -8,7 +8,7 @@ export class Stage extends Sprite {
     this.width = canvas.width;
     this.height = canvas.height;
     this.anchor = 0.5;
-    this.pos = { x: this.width / 2, y: this.height / 2 };
+    this.pos = { x: canvas.width / 2, y: canvas.height / 2 };
     if (!this.ctx) {
       throw new Error();
     }
@@ -16,5 +16,9 @@ export class Stage extends Sprite {
 
   draw() {
     super.draw(this.ctx);
+  }
+
+  get isStage() {
+    return true;
   }
 }

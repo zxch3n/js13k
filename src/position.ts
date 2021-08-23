@@ -47,7 +47,7 @@ export function radianToX(radian: number) {
  */
 export function toGlobal(
   localPos: LocalPosition,
-  planetPos: GlobalPosition,
+  planetPos: GlobalPosition = { x: 0, y: 0 },
 ): GlobalPosition {
   const angle = xToRadian(localPos.x);
   const distance = localPos.y;

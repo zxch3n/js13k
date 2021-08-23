@@ -4,40 +4,73 @@ import { Planet } from './planet';
 
 export default {
   title: 'Game/Planet',
-  argTypes: {},
+  argTypes: {
+    x: {
+      defaultValue: 400,
+      type: 'number',
+      control: {
+        type: 'range',
+        min: 0,
+        max: 800,
+      },
+    },
+    y: {
+      defaultValue: 345,
+      type: 'number',
+      control: {
+        type: 'range',
+        min: 0,
+        max: 600,
+      },
+    },
+    scale: {
+      defaultValue: 1,
+      type: 'number',
+      control: {
+        type: 'range',
+        min: 0.1,
+        max: 32,
+        step: 0.1,
+      },
+    },
+  },
 } as Meta;
 
-function createPlanet() {
+interface Props {
+  x: number;
+  y: number;
+  scale: number;
+}
+
+function createPlanet({ x, y, scale }: Props) {
   const canvas = document.createElement('canvas');
   canvas.width = 800;
   canvas.height = 600;
+
   const ctx = canvas.getContext('2d');
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);
-  const stage = new Stage(canvas);
-  stage.addChild(new Planet({ x: 400, y: 300 }, 50));
-  stage.draw();
-  let factor = 1.01;
-  requestAnimationFrame(function run() {
-    stage.scale = stage.scale * factor;
-    ctx!.fillStyle = 'black';
-    ctx!.fillRect(0, 0, 800, 600);
-    stage.draw();
-    if (stage.scale > 4) {
-      factor = 0.99;
-    } else if (stage.scale < 0.5) {
-      factor = 1.01;
-    }
 
-    requestAnimationFrame(run);
+  const stage = new Stage(canvas);
+  stage.addChild(new Planet({ x, y }, 50));
+  stage.scale = scale;
+  logPerformance(() => {
+    stage.draw();
   });
   return canvas;
 }
 
-const Template: Story<{}> = (args) => {
+function logPerformance(fn: () => void) {
+  const start = performance.now();
+  fn();
+  const end = performance.now();
+  console.log(`${fn.name} took ${end - start}ms`);
+}
+
+const Template: Story<Props> = (args) => {
   // You can either use a function to create DOM elements or use a plain html string!
   // return `<div>${label}</div>`;
-  return createPlanet();
+  return createPlanet(args);
 };
 
 export const Primary = Template.bind({});
