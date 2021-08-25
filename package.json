@@ -15,7 +15,8 @@
     "build-deno": "denoify",
     "release": "yarn build && standard-version",
     "storybook": "start-storybook -p 6008",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "chromatic": "npx chromatic --project-token=1d3b3be999c2"
   },
   "keywords": [
     "js",
@@ -42,7 +43,9 @@
     "@types/jest": "^26.0.20",
     "babel-loader": "^8.2.2",
     "chance": "^1.1.7",
+    "chromatic": "^5.9.2",
     "denoify": "^0.6.5",
+    "dotenv-webpack": "^7.0.3",
     "html-webpack-plugin": "^5.3.2",
     "jest": "^26.6.3",
     "prettier": "^2.3.2",
