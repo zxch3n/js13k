@@ -14,9 +14,12 @@ const CORE_RATE = 0.5;
 
 /**
  * 缩很小的时候不知道会不会影响
+ *
+ * FIXME: planet & human 之间有个间隔
  */
 export class Planet extends Sprite {
   r: number;
+  mass: number = 1;
   constructor(pos: GlobalPosition, r: number) {
     super((ctx: CanvasRenderingContext2D) => {
       const globalScale = this.globalScale;
@@ -37,9 +40,9 @@ export class Planet extends Sprite {
           minTranslateX = translateX;
         }
         ctx.translate(translateX - size / 2, -size / 2);
-        ctx.fillStyle = `rgba(${Math.random() * 255}, ${
-          Math.random() * 255
-        }, 0, 1)`;
+        ctx.fillStyle = `rgba(${
+          (Math.cos(local.x) * local.x * local.y * 929) % 255
+        }, ${(local.y * local.y * 263) % 255}, 0, 1)`;
         ctx.fillRect(0, 0, size, size);
         ctx.restore();
       }

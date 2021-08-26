@@ -69,7 +69,7 @@ export class Sprite {
   //   return this.isStage ? this : this.parent?.getStage();
   // }
 
-  localPos(planet: GlobalPosition): LocalPosition {
+  localPos(planet: GlobalPosition = { x: 0, y: 0 }): LocalPosition {
     return toLocal(this.pos, planet);
   }
 
@@ -79,7 +79,7 @@ export class Sprite {
 
   addChild(child: Sprite) {
     this.children.push(child);
-    if (child.parent) {
+    if (child.parent && child.parent !== this) {
       child.parent.removeChild(child);
     }
 

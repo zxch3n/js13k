@@ -27,8 +27,8 @@ export function toLocal(
   planetPos: GlobalPosition,
 ): LocalPosition {
   const localX = globalPos.x - planetPos.x;
-  const localY = globalPos.y - planetPos.y;
-  let angle = Math.atan2(localY, localX);
+  const localY = -(globalPos.y - planetPos.y);
+  let angle = Math.atan2(localX, localY);
   let distance = Math.sqrt(localX ** 2 + localY ** 2);
   return { x: radianToX(angle), y: distance };
 }
@@ -51,11 +51,19 @@ export function toGlobal(
 ): GlobalPosition {
   const angle = xToRadian(localPos.x);
   const distance = localPos.y;
-  const globalX = planetPos.x + distance * Math.cos(angle);
-  const globalY = planetPos.y + distance * Math.sin(angle);
+  const globalX = planetPos.x + distance * Math.sin(angle);
+  const globalY = planetPos.y - distance * Math.cos(angle);
   return { x: globalX, y: globalY };
 }
 
 export function roundPos<T extends Position>(pos: T): T {
-  return { ...pos, x: Math.round(pos.x), y: Math.round(pos.y) };
+  return { ...pos, x: round(pos.x), y: round(pos.y) };
+}
+
+function round(v: number) {
+  if (Math.abs(v) < 1e-6) {
+    return 0;
+  }
+
+  return Math.round(v);
 }

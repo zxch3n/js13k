@@ -1,4 +1,5 @@
 import { Story, Meta } from '@storybook/html';
+import { Human } from '../human';
 import { Stage } from '../stage';
 import { Planet } from './planet';
 
@@ -42,18 +43,33 @@ interface Props {
   scale: number;
 }
 
-function createPlanet({ x, y, scale }: Props) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 800;
-  canvas.height = 600;
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+const stage = new Stage(canvas);
+const planet = new Planet({ x: 0, y: 0 }, 50);
+const human = new Human(planet);
+stage.addChild(planet);
 
-  const ctx = canvas.getContext('2d');
+document.addEventListener('keydown', (e) => {
+  e.key === 'ArrowLeft' && human.move(-0.5, 0);
+  e.key === 'ArrowRight' && human.move(0.5, 0);
+  e.key === 'ArrowUp' && human.jump();
+});
+
+requestAnimationFrame(function draw() {
+  stage.draw();
+  requestAnimationFrame(draw);
+});
+
+function createPlanet({ x, y, scale }: Props) {
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);
+  planet.pos.x = x;
+  planet.pos.y = y;
 
-  const stage = new Stage(canvas);
-  stage.addChild(new Planet({ x, y }, 50));
-  stage.scale = scale;
+  stage.scale = Math.max(scale, 1);
   logPerformance(() => {
     stage.draw();
   });

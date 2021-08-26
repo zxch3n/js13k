@@ -20,7 +20,7 @@ describe('position', () => {
           pos,
         );
       expect(roundPos(toGlobal(toLocal(pos, planet), planet))).toStrictEqual(
-        pos,
+        roundPos(pos),
       );
     }
   });

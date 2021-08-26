@@ -15,6 +15,8 @@ export class Stage extends Sprite {
   }
 
   draw() {
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0, 0, this.width, this.height);
     super.draw(this.ctx);
   }
 
