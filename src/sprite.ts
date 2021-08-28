@@ -115,12 +115,11 @@ export class Sprite {
   }
 
   setDrawTransform(ctx: CanvasRenderingContext2D) {
-    ctx.translate(this.pos.x, this.pos.y);
+    ctx.translate(this.width * this.anchor, this.height * this.anchor);
     ctx.rotate(this.rotate);
-    ctx.translate(
-      -this.width * this.anchor * this.scale,
-      -this.height * this.anchor * this.scale,
-    );
+    ctx.translate(-this.width * this.anchor, -this.height * this.anchor);
+
+    ctx.translate(this.pos.x, this.pos.y);
     ctx.scale(this.scale, this.scale);
   }
 }

@@ -1,19 +1,19 @@
 import { Position } from './position';
-import { Sprite } from './sprite';
 import { CameraTarget } from './type';
 
 export class Camera {
-  _camera = new Sprite();
   private target?: CameraTarget;
-  get pos() {
-    return this._camera.pos;
-  }
+
+  width: number;
+  height: number;
+  pos: Position;
+  rotate = 0;
+  scale = 1;
 
   constructor(width: number, height: number) {
-    this._camera.width = width;
-    this._camera.height = height;
-    this._camera.anchor = 0.5;
-    this._camera.pos = { x: width / 2, y: height / 2 };
+    this.width = width;
+    this.height = height;
+    this.pos = { x: width / 2, y: height / 2 };
   }
 
   focus(sprite?: CameraTarget) {
@@ -22,15 +22,15 @@ export class Camera {
 
   update() {
     if (this.target) {
-      this._camera.pos = toMiddle(
+      this.pos = toMiddle(
         this.target.getCameraPos(),
         {
-          x: this._camera.width / 2,
-          y: this._camera.height / 2,
+          x: this.width / 2,
+          y: this.height / 2,
         },
         this.scale,
       );
-      this._camera.rotate = -this.target.getCameraRotation();
+      this.rotate = -this.target.getCameraRotation();
     }
   }
 
@@ -40,30 +40,13 @@ export class Camera {
   ) {
     this.update();
     ctx.resetTransform();
-    ctx.translate(
-      this._camera.width * this._camera.anchor,
-      this._camera.height * this._camera.anchor,
-    );
-    ctx.rotate(this._camera.rotate);
-    ctx.translate(
-      -this._camera.width * this._camera.anchor,
-      -this._camera.height * this._camera.anchor,
-    );
+    ctx.translate(this.width * 0.5, this.height * 0.5);
+    ctx.rotate(this.rotate);
+    ctx.translate(-this.width * 0.5, -this.height * 0.5);
     ctx.translate(this.pos.x, this.pos.y);
-    ctx.translate(
-      -this._camera.width * this._camera.anchor * this.scale,
-      -this._camera.height * this._camera.anchor * this.scale,
-    );
     ctx.scale(this.scale, this.scale);
+    ctx.translate(-this.width * 0.5, -this.height * 0.5);
     drawContainer(ctx);
-  }
-
-  set scale(v: number) {
-    this._camera.scale = v;
-  }
-
-  get scale() {
-    return this._camera.scale;
   }
 }
 
