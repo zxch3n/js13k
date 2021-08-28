@@ -1,10 +1,11 @@
 import { Planet } from './planet/planet';
-import { LocalPosition, toGlobal, xToRadian } from './position';
+import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
+import { CameraTarget } from './type';
 
 const ALPHA = 0.1;
 
-export class Human {
+export class Human implements CameraTarget {
   speedY: number = 0;
   sprite: Sprite = new Sprite((ctx) => {
     /**
@@ -23,6 +24,14 @@ export class Human {
     this.planet = planet;
     planet.addChild(this.sprite);
     this.localPos = { x: 0, y: this.planet.r };
+  }
+
+  getCameraPos(): Position {
+    return this.sprite.getStagePos();
+  }
+
+  getCameraRotation(): number {
+    return xToRadian(this.localPos.x);
   }
 
   move(x: number, y: number) {
@@ -50,10 +59,15 @@ export class Human {
   }
 
   jump() {
+    if (this.speedY !== 0) {
+      return;
+    }
+
     this.speedY = 0.4;
   }
 
   private lastUpdated = 0;
+
   /**
    * refresh every frame
    * @param elapsed

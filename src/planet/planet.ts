@@ -22,7 +22,7 @@ export class Planet extends Sprite {
   mass: number = 1;
   constructor(pos: GlobalPosition, r: number) {
     super((ctx: CanvasRenderingContext2D) => {
-      const globalScale = this.globalScale;
+      const globalScale = this.cameraScale;
       let minTranslateX = this.r;
       let minY = Infinity;
       let size = 0;
@@ -59,8 +59,8 @@ export class Planet extends Sprite {
   }
 
   get TILE_SIZE() {
-    if (this.globalScale > 16) {
-      return this.globalScale;
+    if (this.cameraScale > 16) {
+      return this.cameraScale;
     }
 
     return 16;

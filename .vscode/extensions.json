@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "alefragnani.bookmarks",
+    "streetsidesoftware.code-spell-checker",
+    "naumovs.color-highlight",
+    "royaction.color-manager",
+    "equinusocio.vsc-community-material-theme",
+    "firsttris.vscode-jest-runner",
+    "kavod-io.vscode-jest-test-adapter",
+    "ms-vsliveshare.vsliveshare",
+    "yzhang.markdown-all-in-one",
+    "oderwat.indent-rainbow",
+    "pkief.material-icon-theme",
+    "equinusocio.vsc-material-theme",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "hbenl.vscode-test-explorer",
+    "gruntfuggly.todo-tree",
+    "visualstudioexptteam.vscodeintellicode",
+    "vscode-icons-team.vscode-icons"
+  ]
+}

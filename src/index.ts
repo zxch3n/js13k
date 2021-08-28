@@ -1,8 +1,6 @@
 import { Planet } from './planet/planet';
 import { Stage } from './stage';
 
-export { add } from './add';
-
 interface Props {
   x: number;
   y: number;

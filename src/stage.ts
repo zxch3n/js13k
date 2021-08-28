@@ -1,14 +1,15 @@
+import { Camera } from './camera';
 import { Sprite } from './sprite';
 
 export class Stage extends Sprite {
+  camera: Camera;
   private ctx: CanvasRenderingContext2D;
-  constructor(private canvas: HTMLCanvasElement) {
+  private canvas: HTMLCanvasElement;
+  constructor(canvas: HTMLCanvasElement) {
     super();
+    this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
-    this.width = canvas.width;
-    this.height = canvas.height;
-    this.anchor = 0.5;
-    this.pos = { x: canvas.width / 2, y: canvas.height / 2 };
+    this.camera = new Camera(canvas.width, canvas.height);
     if (!this.ctx) {
       throw new Error();
     }
@@ -16,11 +17,19 @@ export class Stage extends Sprite {
 
   draw() {
     this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0, 0, this.width, this.height);
-    super.draw(this.ctx);
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.camera.draw(this.ctx, super.draw.bind(this));
   }
 
   get isStage() {
     return true;
+  }
+
+  get cameraScale(): number {
+    return this.scale * this.camera.scale;
+  }
+
+  getCamera() {
+    return this.camera;
   }
 }

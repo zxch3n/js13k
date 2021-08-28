@@ -1,3 +1,4 @@
+import { Camera } from './camera';
 import { GlobalPosition, LocalPosition, Position, toLocal } from './position';
 
 let flushPromise: undefined | Promise<void>;
@@ -18,22 +19,33 @@ export class Sprite {
     this._draw = _draw;
   }
 
-  get globalScale(): number {
-    return this.scale * (this.parent ? this.parent.globalScale : 1);
+  get cameraScale(): number {
+    return this.scale * (this.parent ? this.parent.cameraScale : 1);
   }
 
-  // getRootPos({ x, y }: Position = this.pos): GlobalPosition {
-  //   let sprite = this.parent;
-  //   const pos = { x, y };
-  //   while (sprite) {
-  //     pos.x += sprite.pos.x;
-  //     pos.y += sprite.pos.y;
-  //     pos.x = (pos.x - sprite.origin.x) * sprite.scale + sprite.origin.x;
-  //     pos.y = (pos.y - sprite.origin.y) * sprite.scale + sprite.origin.y;
-  //     sprite = sprite.parent;
-  //   }
-  //   return pos;
-  // }
+  getStagePos(childPos?: Position): GlobalPosition {
+    let pos: Position;
+    if (childPos) {
+      childPos = {
+        x: childPos.x * this.scale,
+        y: childPos.y * this.scale,
+      };
+      pos = rotate(childPos, -this.rotate);
+    } else {
+      pos = { x: 0, y: 0 };
+    }
+
+    pos = {
+      x: pos.x + this.pos.x + this.width * this.anchor * this.scale,
+      y: pos.y + this.pos.y + this.height * this.anchor * this.scale,
+    };
+
+    return this.parent ? this.parent.getStagePos(pos) : pos;
+  }
+
+  getCamera(): Camera | undefined {
+    return this.parent?.getCamera();
+  }
 
   // get origin(): Position {
   //   return {
@@ -95,16 +107,30 @@ export class Sprite {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     {
-      ctx.translate(this.pos.x, this.pos.y);
-      ctx.translate(
-        -this.width * this.anchor * this.scale,
-        -this.height * this.anchor * this.scale,
-      );
-      ctx.rotate(this.rotate);
-      ctx.scale(this.scale, this.scale);
+      this.setDrawTransform(ctx);
       this._draw && this._draw(ctx);
       this.children.forEach((x) => x.draw(ctx));
     }
     ctx.restore();
   }
+
+  setDrawTransform(ctx: CanvasRenderingContext2D) {
+    ctx.translate(this.pos.x, this.pos.y);
+    ctx.rotate(this.rotate);
+    ctx.translate(
+      -this.width * this.anchor * this.scale,
+      -this.height * this.anchor * this.scale,
+    );
+    ctx.scale(this.scale, this.scale);
+  }
+}
+
+function rotate(pos: GlobalPosition, angle: number): GlobalPosition {
+  const { x, y } = pos;
+  const sin = Math.sin(angle);
+  const cos = Math.cos(angle);
+  return {
+    x: x * cos - y * sin,
+    y: x * sin + y * cos,
+  };
 }

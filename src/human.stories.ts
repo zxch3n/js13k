@@ -1,40 +1,11 @@
 import { Story, Meta } from '@storybook/html';
-import { Human } from '../human';
-import { Stage } from '../stage';
-import { Planet } from './planet';
+import { Human } from './human';
+import { Stage } from './stage';
+import { Planet } from './planet/planet';
 
 export default {
-  title: 'Game/Planet',
-  argTypes: {
-    x: {
-      defaultValue: 400,
-      type: 'number',
-      control: {
-        type: 'range',
-        min: 0,
-        max: 800,
-      },
-    },
-    y: {
-      defaultValue: 345,
-      type: 'number',
-      control: {
-        type: 'range',
-        min: 0,
-        max: 600,
-      },
-    },
-    scale: {
-      defaultValue: 1,
-      type: 'number',
-      control: {
-        type: 'range',
-        min: 0.1,
-        max: 32,
-        step: 0.1,
-      },
-    },
-  },
+  title: 'Game/Human',
+  argTypes: {},
 } as Meta;
 
 interface Props {
@@ -49,9 +20,31 @@ canvas.width = 800;
 canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
+const human = new Human(planet);
+stage.camera.focus(human);
 stage.addChild(planet);
 
-function createPlanet({ x, y, scale }: Props) {
+(window as any).camera = stage.camera;
+(window as any).stage = stage;
+
+document.addEventListener('keydown', (e) => {
+  e.key === 'ArrowLeft' && human.move(-0.5, 0);
+  e.key === 'ArrowRight' && human.move(0.5, 0);
+  e.key === 'ArrowUp' && human.jump();
+});
+
+let lastRun = +new Date();
+requestAnimationFrame(function draw() {
+  if (Date.now() - lastRun < 12) {
+    return;
+  }
+
+  lastRun = +new Date();
+  stage.draw();
+  requestAnimationFrame(draw);
+});
+
+function createPlanet({ x = 400, y = 352, scale = 16 }: Props) {
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);
   planet.pos.x = x;
