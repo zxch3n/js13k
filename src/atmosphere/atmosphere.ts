@@ -23,17 +23,18 @@ function main(canvas: HTMLCanvasElement) {
 attribute vec2 a_position;
 
 uniform mat3 u_matrix;
+uniform vec2 u_center;
+uniform float u_radius;
 
 varying vec4 v_color;
 
 void main() {
   // Multiply the position by the matrix.
   gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
+  float dist = distance(u_center, a_position); 
 
-  // Convert from clipspace to colorspace.
-  // Clipspace goes -1.0 to +1.0
-  // Colorspace goes from 0.0 to 1.0
-  v_color = gl_Position * 0.5 + 0.5;
+  // color fade away as dist increases
+  v_color = vec4(0, 0, 0.5, 1.0 - dist / u_radius);
 }
     `,
     },
@@ -56,15 +57,18 @@ void main() {
 
   // lookup uniforms
   var matrixLocation = gl.getUniformLocation(program, 'u_matrix');
+  const centerPosLocation = gl.getUniformLocation(program, 'u_center');
+  const radiusLocation = gl.getUniformLocation(program, 'u_radius');
 
   // Create a buffer.
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Set Geometry.
-  setGeometry(gl);
+  const triangles = genTriangleArray(800, 600, 10);
+  setGeometry(gl, triangles);
 
-  var translation = [200, 150];
+  var translation = [0, 0];
   var angleInRadians = 0;
   var scale = [1, 1];
 
@@ -116,11 +120,13 @@ void main() {
 
     // Set the matrix.
     gl.uniformMatrix3fv(matrixLocation, false, matrix);
+    gl.uniform2f(centerPosLocation, gl.canvas.width / 2, gl.canvas.height / 2);
+    gl.uniform1f(radiusLocation, gl.canvas.width / 2);
 
     // Draw the geometry.
     var primitiveType = gl.TRIANGLES;
     var offset = 0;
-    var count = 3;
+    var count = 3 * triangles.length;
     gl.drawArrays(primitiveType, offset, count);
   }
 }
@@ -128,12 +134,30 @@ void main() {
 // Fill the buffer with the values that define a triangle.
 // Note, will put the values in whatever buffer is currently
 // bound to the ARRAY_BUFFER bind point
-function setGeometry(gl: WebGLRenderingContext) {
+function setGeometry(gl: WebGLRenderingContext, from: number[][]) {
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array([0, -100, 150, 125, -175, 100]),
+    new Float32Array(Array.prototype.concat(...from)),
     gl.STATIC_DRAW,
   );
+}
+
+function genTriangleArray(width: number, height: number, step: number) {
+  const ans = [] as number[][];
+  for (let x of range(0, width, step)) {
+    for (let y of range(0, height, step)) {
+      ans.push([x, y, x, y + step, x + step, y]);
+      ans.push([x + step, y + step, x, y + step, x + step, y]);
+    }
+  }
+
+  return ans;
+}
+
+function* range(from: number, to: number, step: number) {
+  for (let i = from; i < to; i += step) {
+    yield i;
+  }
 }
 
 /**
@@ -217,7 +241,7 @@ function loadShader(
   shaderType: any,
   opt_errorCallback: any,
 ) {
-  const errFn = opt_errorCallback || (() => {});
+  const errFn = opt_errorCallback || console.error;
   // Create the shader object
   const shader = gl.createShader(shaderType);
 
@@ -382,7 +406,7 @@ function createProgram(
   opt_locations: any,
   opt_errorCallback: any,
 ) {
-  const errFn = opt_errorCallback || (() => {});
+  const errFn = opt_errorCallback || console.error;
   const program = gl.createProgram();
   shaders.forEach(function (shader: any) {
     gl.attachShader(program, shader);
