@@ -36,8 +36,8 @@ export class Sprite {
     }
 
     pos = {
-      x: pos.x + this.pos.x + this.width * this.anchor * this.scale,
-      y: pos.y + this.pos.y + this.height * this.anchor * this.scale,
+      x: pos.x + this.pos.x,
+      y: pos.y + this.pos.y,
     };
 
     return this.parent ? this.parent.getStagePos(pos) : pos;

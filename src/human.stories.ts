@@ -5,7 +5,18 @@ import { Planet } from './planet/planet';
 
 export default {
   title: 'Game/Human',
-  argTypes: {},
+  argTypes: {
+    scale: {
+      defaultValue: 1,
+      type: 'number',
+      control: {
+        type: 'range',
+        min: 0.1,
+        max: 128,
+        step: 0.1,
+      },
+    },
+  },
 } as Meta;
 
 interface Props {
@@ -33,13 +44,7 @@ document.addEventListener('keydown', (e) => {
   e.key === 'ArrowUp' && human.jump();
 });
 
-let lastRun = +new Date();
 requestAnimationFrame(function draw() {
-  if (Date.now() - lastRun < 12) {
-    return;
-  }
-
-  lastRun = +new Date();
   stage.draw();
   requestAnimationFrame(draw);
 });

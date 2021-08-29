@@ -98,9 +98,15 @@ export class Planet extends Sprite {
   }
 
   override draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
     this.updateCache();
     this.cache.draw(ctx, this.drawPlanetOnCache);
+    ctx.restore();
+    ctx.save();
+    this.setDrawTransform(ctx);
+    this.children.forEach((x) => x.draw(ctx));
+    ctx.restore();
   }
 
   get TILE_SIZE() {
