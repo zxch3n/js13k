@@ -7,7 +7,15 @@ export default {
 } as Meta;
 
 const Template: Story<{}> = (args: {}) => {
-  return atmosphere();
+  const startTime = performance.now();
+  const canvas = atmosphere();
+  console.log('USED', performance.now() - startTime);
+  const container = document.createElement('div');
+  container.style.backgroundColor = 'black';
+  container.appendChild(canvas);
+  container.style.width = canvas.width + 'px';
+  container.style.height = canvas.height + 'px';
+  return container;
 };
 
 export const Primary = Template.bind({});
