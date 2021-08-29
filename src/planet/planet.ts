@@ -85,9 +85,11 @@ export class Planet extends Sprite {
     this.updateCache();
     getPlanetMaterial().then((v) => {
       Planet.material = v;
+      this.cache.clearCache();
     });
     getPlanetMaterialSurface().then((v) => {
       Planet.materialSurface = v;
+      this.cache.clearCache();
     });
   }
 

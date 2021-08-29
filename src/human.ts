@@ -7,6 +7,7 @@ const ALPHA = 0.1;
 
 export class Human implements CameraTarget {
   speedY: number = 0;
+  speedX: number = 0;
   sprite: Sprite = new Sprite((ctx) => {
     /**
      * FIXME: 目前没对应到脚站的地方
@@ -40,6 +41,10 @@ export class Human implements CameraTarget {
     if (this.onGround) {
       this.speedY = 0;
     }
+  }
+
+  speedUp(x: number) {
+    this.speedX = clamp(this.speedX + x, -0.5, 0.5);
   }
 
   /**
@@ -76,7 +81,32 @@ export class Human implements CameraTarget {
     if (this.speedY > -4 && !this.onGround) {
       this.speedY -= ALPHA * elapsed;
     }
+
+    if (this.onGround) {
+      this.speedX = this.speedX * 0.9;
+    } else {
+      this.speedX = this.speedX * 0.99;
+    }
+
     this.lastUpdated = +new Date();
-    this.move(0, this.speedY);
+    this.move(this.speedX, this.speedY);
   }
+}
+
+function clamp(x: number, min: number, max: number) {
+  return Math.min(Math.max(x, min), max);
+}
+
+export function addControl(human: Human) {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      human.move(-0.5, 0);
+      human.speedUp(-0.2);
+    }
+    if (e.key === 'ArrowRight') {
+      human.move(0.5, 0);
+      human.speedUp(0.2);
+    }
+    e.key === 'ArrowUp' && human.jump();
+  });
 }

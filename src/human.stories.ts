@@ -1,18 +1,19 @@
 import { Story, Meta } from '@storybook/html';
-import { Human } from './human';
+import { addControl, Human } from './human';
 import { Stage } from './stage';
 import { Planet } from './planet/planet';
+import { getPlanetMaterial } from './material';
 
 export default {
   title: 'Game/Human',
   argTypes: {
     scale: {
-      defaultValue: 1,
+      defaultValue: 32,
       type: 'number',
       control: {
         type: 'range',
         min: 0.1,
-        max: 128,
+        max: 64,
         step: 0.1,
       },
     },
@@ -34,16 +35,14 @@ const planet = new Planet({ x: 0, y: 0 }, 50);
 const human = new Human(planet);
 stage.camera.focus(human);
 stage.addChild(planet);
+getPlanetMaterial().then(() => {
+  requestAnimationFrame(() => stage.draw());
+});
 
 (window as any).camera = stage.camera;
 (window as any).stage = stage;
 
-document.addEventListener('keydown', (e) => {
-  e.key === 'ArrowLeft' && human.move(-0.5, 0);
-  e.key === 'ArrowRight' && human.move(0.5, 0);
-  e.key === 'ArrowUp' && human.jump();
-});
-
+addControl(human);
 requestAnimationFrame(function draw() {
   stage.draw();
   requestAnimationFrame(draw);
