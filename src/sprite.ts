@@ -60,6 +60,7 @@ export class Sprite {
 
   removeChild(child: Sprite) {
     this.children = this.children.filter((x) => x !== child);
+    // TODO? child.parent = null?
   }
 
   addChild(child: Sprite) {

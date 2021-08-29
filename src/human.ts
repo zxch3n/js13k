@@ -2,10 +2,11 @@ import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget } from './type';
+import GameObject from './gameObject';
 
 const ALPHA = 0.1;
 
-export class Human implements CameraTarget {
+export class Human extends GameObject implements CameraTarget {
   faceLeft = false;
   speedY: number = 0;
   speedX: number = 0;
@@ -37,6 +38,7 @@ export class Human implements CameraTarget {
 
   planet: Planet;
   constructor(planet: Planet) {
+    super();
     this.planet = planet;
     planet.addChild(this.sprite);
     this.localPos = { x: 0, y: this.planet.r };
@@ -70,13 +72,7 @@ export class Human implements CameraTarget {
   /**
    * 对应脚站的地方
    */
-  get localPos() {
-    return this.sprite.localPos();
-  }
 
-  set localPos(pos: LocalPosition) {
-    this.sprite.pos = toGlobal(pos);
-  }
 
   // TODO: use collision detection
   get onGround() {
@@ -90,8 +86,6 @@ export class Human implements CameraTarget {
 
     this.speedY = 0.4;
   }
-
-  private lastUpdated = 0;
 
   /**
    * refresh every frame
