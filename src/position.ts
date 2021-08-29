@@ -21,7 +21,8 @@ export interface Position {
 }
 
 export const TILE_NUM = 400;
-export const SCALE_FACTOR = TILE_NUM / 2 / Math.PI;
+export const PIXEL_TO_GLOBAL_COORDINATE = 16;
+const SCALE_FACTOR = TILE_NUM / 2 / Math.PI;
 export function toLocal(
   globalPos: GlobalPosition,
   planetPos: GlobalPosition,

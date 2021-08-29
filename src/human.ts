@@ -6,6 +6,7 @@ import { CameraTarget } from './type';
 const ALPHA = 0.1;
 
 export class Human implements CameraTarget {
+  faceLeft = false;
   speedY: number = 0;
   speedX: number = 0;
   sprite: Sprite = new Sprite((ctx) => {
@@ -15,7 +16,21 @@ export class Human implements CameraTarget {
     ctx.save();
     ctx.fillStyle = 'red';
     ctx.rotate(xToRadian(this.localPos.x));
-    ctx.fillRect(-1, -2, 1, 2);
+    const material = this.sprite.material;
+    if (material) {
+      if (this.faceLeft) {
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(
+        material,
+        -this.sprite.width / 2,
+        -this.sprite.height / 2,
+        this.sprite.width,
+        this.sprite.height,
+      );
+    } else {
+      ctx.fillRect(-1, -2, 1, 2);
+    }
     ctx.restore();
     this.update();
   });
@@ -27,6 +42,10 @@ export class Human implements CameraTarget {
     this.localPos = { x: 0, y: this.planet.r };
   }
 
+  async setMaterial(material: Promise<HTMLCanvasElement>) {
+    this.sprite.material = await material;
+  }
+
   getCameraPos(): Position {
     return this.sprite.getStagePos();
   }
@@ -36,6 +55,7 @@ export class Human implements CameraTarget {
   }
 
   move(x: number, y: number) {
+    this.faceLeft = x < 0;
     const localPos = this.localPos;
     this.localPos = { x: localPos.x + x, y: localPos.y + y };
     if (this.onGround) {

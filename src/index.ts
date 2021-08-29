@@ -1,8 +1,8 @@
-import { Story, Meta } from '@storybook/html';
+import { Meta } from '@storybook/html';
 import { addControl, Human } from './human';
-import { Stage } from './stage';
-import { Planet } from './planet/planet';
 import { getPlanetMaterial } from './material';
+import { Planet } from './planet/planet';
+import { Stage } from './stage';
 
 export default {
   title: 'Game/Human',

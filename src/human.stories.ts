@@ -2,7 +2,7 @@ import { Story, Meta } from '@storybook/html';
 import { addControl, Human } from './human';
 import { Stage } from './stage';
 import { Planet } from './planet/planet';
-import { getPlanetMaterial } from './material';
+import { getPlanetMaterial, HumanMaterial } from './material';
 
 export default {
   title: 'Game/Human',
@@ -33,6 +33,7 @@ canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
 const human = new Human(planet);
+human.setMaterial(HumanMaterial);
 stage.camera.focus(human);
 stage.addChild(planet);
 getPlanetMaterial().then(() => {

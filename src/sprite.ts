@@ -1,5 +1,11 @@
 import { Camera } from './camera';
-import { GlobalPosition, LocalPosition, Position, toLocal } from './position';
+import {
+  GlobalPosition,
+  LocalPosition,
+  PIXEL_TO_GLOBAL_COORDINATE,
+  Position,
+  toLocal,
+} from './position';
 
 let flushPromise: undefined | Promise<void>;
 export class Sprite {
@@ -13,6 +19,7 @@ export class Sprite {
   width = 0;
   height = 0;
   anchor = 0;
+  material?: HTMLCanvasElement;
   _draw?: (ctx: CanvasRenderingContext2D) => void;
 
   constructor(_draw?: (ctx: CanvasRenderingContext2D) => void) {
@@ -47,40 +54,6 @@ export class Sprite {
     return this.parent?.getCamera();
   }
 
-  // get origin(): Position {
-  //   return {
-  //     x: this.width * this.anchor,
-  //     y: this.height * this.anchor,
-  //   };
-  // }
-
-  // inside(pos: Position): boolean {
-  //   const { x, y } = pos;
-  //   return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
-  // }
-
-  // get isStage(): boolean {
-  //   return false;
-  // }
-
-  // insideStage(pos: GlobalPosition = { x: 0, y: 0 }): boolean {
-  //   const stage = this.getStage();
-  //   if (!stage) {
-  //     return false;
-  //   }
-
-  //   const newPos = this.getRootPos(pos);
-  //   const isInside = stage.inside(newPos);
-  //   if (!isInside) {
-  //     console.log(pos, newPos);
-  //   }
-  //   return isInside;
-  // }
-
-  // getStage(): Sprite | undefined {
-  //   return this.isStage ? this : this.parent?.getStage();
-  // }
-
   localPos(planet: GlobalPosition = { x: 0, y: 0 }): LocalPosition {
     return toLocal(this.pos, planet);
   }
@@ -105,6 +78,12 @@ export class Sprite {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    if (this.material) {
+      if (this.width * this.height === 0) {
+        this.width = this.material.width / PIXEL_TO_GLOBAL_COORDINATE;
+        this.height = this.material.height / PIXEL_TO_GLOBAL_COORDINATE;
+      }
+    }
     ctx.save();
     {
       this.setDrawTransform(ctx);
