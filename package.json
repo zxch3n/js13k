@@ -46,6 +46,7 @@
     "chromatic": "^5.9.2",
     "denoify": "^0.6.5",
     "dotenv-webpack": "^7.0.3",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
     "jest": "^26.6.3",
     "prettier": "^2.3.2",

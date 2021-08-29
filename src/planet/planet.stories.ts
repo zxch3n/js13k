@@ -30,7 +30,7 @@ export default {
       control: {
         type: 'range',
         min: 0.1,
-        max: 32,
+        max: 128,
         step: 0.1,
       },
     },
