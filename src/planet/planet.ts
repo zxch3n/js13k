@@ -76,15 +76,13 @@ export class Planet extends Sprite {
   };
 
   constructor(pos: GlobalPosition, r: number) {
-    super((ctx: CanvasRenderingContext2D) => {
-      this.updateCacheSize();
-      this.cache.draw(ctx, this.drawPlanetOnCache);
-    });
+    super((ctx: CanvasRenderingContext2D) => {});
 
     this.pos = pos;
     this.r = r;
     this.height = this.width = this.r * 2;
-    this.updateCacheSize();
+    this.anchor = 0.5;
+    this.updateCache();
     getPlanetMaterial().then((v) => {
       Planet.material = v;
     });
@@ -93,9 +91,16 @@ export class Planet extends Sprite {
     });
   }
 
-  private updateCacheSize() {
+  private updateCache() {
     this.cache.setSize(this.width, this.height);
     this.cache.setScale(this.cameraScale);
+    this.cache.rotate = this.rotate;
+  }
+
+  override draw(ctx: CanvasRenderingContext2D) {
+    ctx.translate(this.pos.x, this.pos.y);
+    this.updateCache();
+    this.cache.draw(ctx, this.drawPlanetOnCache);
   }
 
   get TILE_SIZE() {

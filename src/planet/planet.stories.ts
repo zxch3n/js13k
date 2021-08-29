@@ -58,8 +58,11 @@ function createPlanet({ x, y, scale }: Props) {
   planet.pos.y = y;
 
   stage.camera.scale = Math.max(scale, 1);
-  logPerformance(() => {
+  stage.draw();
+  requestAnimationFrame(function update() {
     stage.draw();
+    planet.rotate += 0.02;
+    requestAnimationFrame(update);
   });
   return canvas;
 }

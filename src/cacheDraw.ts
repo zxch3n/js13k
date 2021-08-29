@@ -8,6 +8,8 @@ export class CacheDraw {
   private ctx = this.canvas.getContext('2d')!;
   targetSize: { width: number; height: number } = { width: 0, height: 0 };
   targetScale = 1;
+  rotate = 0;
+  scale = 1;
 
   setScale(v: number) {
     this.targetScale = v;
@@ -20,12 +22,16 @@ export class CacheDraw {
   }
 
   private update() {
-    if (
-      changed(this.targetSize.width * this.targetScale, this.canvas.width) ||
-      changed(this.targetSize.height * this.targetScale, this.canvas.height)
-    ) {
-      this.canvas.width = this.targetSize.width * this.targetScale;
-      this.canvas.height = this.targetSize.height * this.targetScale;
+    const targetWidth = Math.min(
+      this.targetSize.width * this.targetScale,
+      2000,
+    );
+    if (changed(targetWidth, this.canvas.width)) {
+      const ratio = this.targetSize.height / this.targetSize.width;
+      this.canvas.width = targetWidth;
+      this.canvas.height = this.canvas.width * ratio;
+      this.scale =
+        this.canvas.width / (this.targetSize.width * this.targetScale);
       this.clearCache();
     }
   }
@@ -35,18 +41,20 @@ export class CacheDraw {
     draw: (ctx: CanvasRenderingContext2D) => void,
   ) {
     if (!this.cached) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.resetTransform();
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      this.ctx.scale(this.scale, this.scale);
       draw(this.ctx);
     }
 
     ctx.save();
-    ctx.translate(-this.targetSize.width / 2, -this.targetSize.height / 2);
+    ctx.rotate(this.rotate);
+
     ctx.drawImage(
       this.canvas,
-      0,
-      0,
+      -this.targetSize.width / 2,
+      -this.targetSize.height / 2,
       this.targetSize.width,
       this.targetSize.height,
     );
