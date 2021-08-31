@@ -3,25 +3,28 @@ import {Position, xToRadian } from './position';
 import GameObject from './gameObject';
 
 export default class Bullet extends GameObject{
-  sprite:Sprite = new Sprite((ctx) => {
-      ctx.save();
-      ctx.fillStyle = 'orange';
-      ctx.rotate(xToRadian(this.localPos.x));
-      ctx.fillRect(-1, -2, 1, 2);
-      ctx.restore();
-      this.update();
-      }
-    )
+  sprite:Sprite = new Sprite(Bullet.drawSelf(this))
   private flewDistance:number=0;
-  constructor(
-    public pos: Position,
-    public damage: number,
-    public speed: number,
-    public faceLeft: boolean,
-    public maxFlyDistance: number=30
-  ) {
+  public speed: number;
+  public faceLeft: boolean;
+  public damage: number=20;
+  public maxFlyDistance: number=50
+  constructor(pos: Position, speed: number, faceLeft: boolean) {
     super();
     this.localPos = pos;
+    this.speed = speed;
+    this.faceLeft = faceLeft;
+  }
+
+  static drawSelf(bullet:Bullet){
+    return (ctx: CanvasRenderingContext2D)=>{
+      ctx.save();
+      ctx.fillStyle = 'orange';
+      ctx.rotate(xToRadian(bullet.localPos.x));
+      ctx.fillRect(-0.4, -0.2, 0.4, 0.2);
+      ctx.restore();
+      bullet.update();
+    }
   }
 
   move(x: number){
@@ -30,15 +33,28 @@ export default class Bullet extends GameObject{
     }
     const localPos = this.localPos;
     this.localPos = {...localPos, x: localPos.x + x};
+    this.flewDistance += Math.abs(x);
+  }
+
+  static reload(pos:Position, speed:number, faceLeft:boolean){
+    return (bullet:Bullet) => {
+      bullet.isAlive = true;
+      bullet.localPos = pos;
+      bullet.speed = speed;
+      bullet.lastUpdated = +new Date();
+      bullet.faceLeft = faceLeft;
+      bullet.flewDistance = 0;
+      bullet.sprite._draw = this.drawSelf(bullet);
+    }
   }
 
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60): void {
     if (this.flewDistance >= this.maxFlyDistance){
       this.isAlive = false;
-      this.sprite._draw = ctx => {}
+      this.sprite._draw = ()=>{}
     }
     this.lastUpdated = +new Date();
-    this.move(this.speed);
+    this.move(this.speed * elapsed);
   }
 
 }

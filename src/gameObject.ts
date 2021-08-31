@@ -1,4 +1,3 @@
-import GEvent from './Event';
 import { LocalPosition, toGlobal } from './position';
 import { Sprite } from './sprite';
 export default abstract class GameObject{
@@ -6,7 +5,7 @@ export default abstract class GameObject{
   isAlive=true  // if !isAlive Don't render
   listeners: {[event: string]: {(event:GEvent): void}[]} = { all: [] };
 
-  protected lastUpdated = 0;
+  protected lastUpdated = +new Date();
 
   addListener(eventName:string, listener:{(event:GEvent): void}):void{
     if (!(eventName in this.listeners)){
@@ -35,15 +34,27 @@ export default abstract class GameObject{
   abstract update():void;
 }
 
-class ObjectPool{
+export class GEvent{
+  constructor(
+    public eventName:string,
+    public target?:GameObject,
+    public extra?:Object
+  ) {}
+
+}
+
+export class ObjectPool{
   private pool: GameObject[] = [];
+  protected factory:([])=>GameObject;
+  constructor(fac:([])=>GameObject){
+    this.factory = fac;
+  }
 
-  constructor(protected factory: ()=>GameObject){}
-
-  instantiate(initCall?:(item:GameObject)=>void):GameObject{
+  instantiate(initCall?:(item:GameObject)=>void, ...args:unknown[]):GameObject{
     let item = this.findAliveItem()
     if (!item){
-      item = this.factory();
+      item = this.factory(args);
+      this.pool.push(item)
     }
     if(initCall){
       initCall(item);
