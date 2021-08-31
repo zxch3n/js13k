@@ -67,7 +67,7 @@ export class CacheDraw {
   }
 }
 
-function changed(a: number, b: number): boolean {
+export function changed(a: number, b: number): boolean {
   if (a > b) {
     [a, b] = [b, a];
   }

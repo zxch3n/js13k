@@ -1,3 +1,4 @@
+import { Atmosphere, atmosphere } from '../atmosphere/atmosphere';
 import { CacheDraw } from '../cacheDraw';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {
@@ -24,6 +25,7 @@ export class Planet extends Sprite {
   cache: CacheDraw = new CacheDraw();
   static material?: HTMLCanvasElement;
   static materialSurface?: HTMLCanvasElement;
+  atmosphere = new Atmosphere(this);
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
     ctx.save();
@@ -94,6 +96,7 @@ export class Planet extends Sprite {
   }
 
   private updateCache() {
+    this.atmosphere.updateCache();
     this.cache.setSize(this.width, this.height);
     this.cache.setScale(this.cameraScale);
     this.cache.rotate = this.rotate;
@@ -103,6 +106,7 @@ export class Planet extends Sprite {
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
     this.updateCache();
+    this.atmosphere.draw(ctx);
     this.cache.draw(ctx, this.drawPlanetOnCache);
     ctx.restore();
     ctx.save();

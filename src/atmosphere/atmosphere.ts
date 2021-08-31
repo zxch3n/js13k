@@ -1,18 +1,64 @@
 import { createProgramFromScripts, m3 } from './webgl';
 import { range } from './range';
+import { Planet } from '../planet/planet';
 
-export function atmosphere(radius: number = 200, scale = 1.5) {
-  const canvas = document.createElement('canvas');
-  canvas.width = radius * 2 * 1.4;
-  canvas.height = radius * 2 * 1.4;
+export function atmosphere(
+  size: number = 400,
+  canvas = document.createElement('canvas'),
+) {
+  canvas.width = size;
+  canvas.height = size;
 
-  main(canvas, radius, scale);
+  main(canvas, size / 1.4 / 2);
   return canvas;
+}
+
+export class Atmosphere {
+  canvas: HTMLCanvasElement;
+  planet: Planet;
+  constructor(planet: Planet) {
+    this.planet = planet;
+    this.canvas = atmosphere(Math.max(300, planet.r * planet.cameraScale || 0));
+  }
+
+  private maximumSize: number = 3000;
+  updateCache() {
+    const newSize = this.planet.r * this.planet.cameraScale * 2 * 1.4;
+    if (this.maximumSize && newSize > this.maximumSize) {
+      return;
+    }
+
+    if (newSize > this.canvas.width * 1.1) {
+      const oldSize = this.canvas.width;
+      try {
+        atmosphere(newSize, this.canvas);
+      } catch (e) {
+        this.maximumSize = this.canvas.width;
+        console.error(e);
+        atmosphere(oldSize, this.canvas);
+      }
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    const r = this.planet.r * 1.4;
+    ctx.drawImage(
+      this.canvas,
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height,
+      -r,
+      -r,
+      r * 2,
+      r * 2,
+    );
+  }
 }
 
 // WebGL - Triangle with position for color
 // from https://webglfundamentals.org/webgl/webgl-2d-triangle-with-position-for-color.html
-function main(canvas: HTMLCanvasElement, radius: number, effectScale: number) {
+function main(canvas: HTMLCanvasElement, radius: number) {
   var gl = canvas.getContext('webgl');
   if (!gl) {
     throw new Error();
@@ -44,7 +90,7 @@ void main() {
   float blue_opacity = 0.6;
 
   vec4 v_0 = vec4(0, 0, 0, 0);
-  vec4 v_1 = vec4(0.8, 0.8, 0.9, 1);
+  vec4 v_1 = vec4(0.8, 0.8, 0.9, 0.7);
   vec4 v_2 = vec4(0.1, 0.1, 0.6, 0.5);
   vec4 v_3 = vec4(0.0, 0, 0.3, 0.5);
   vec4 v_4 = vec4(0, 0, 0, 0);
@@ -90,14 +136,13 @@ void main() {
   var matrixLocation = gl.getUniformLocation(program, 'u_matrix');
   const centerPosLocation = gl.getUniformLocation(program, 'u_center');
   const radiusLocation = gl.getUniformLocation(program, 'u_radius');
-  const scaleLocation = gl.getUniformLocation(program, 'u_scale');
 
   // Create a buffer.
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Set Geometry.
-  const triangles = genTriangleArray(canvas.width, canvas.height, 4);
+  const triangles = genTriangleArray(canvas.width, canvas.height, 10);
   setGeometry(gl, triangles);
 
   var translation = [0, 0];
@@ -148,13 +193,16 @@ void main() {
   gl.uniformMatrix3fv(matrixLocation, false, matrix);
   gl.uniform2f(centerPosLocation, gl.canvas.width / 2, gl.canvas.height / 2);
   gl.uniform1f(radiusLocation, radius);
-  gl.uniform1f(scaleLocation, effectScale);
 
   // Draw the geometry.
-  var primitiveType = gl.TRIANGLES;
-  var offset = 0;
-  var count = 3 * triangles.length;
-  gl.drawArrays(primitiveType, offset, count);
+  for (let i = 0; i < triangles.length; ) {
+    const drawLength = Math.min(triangles.length - i, 100);
+    var primitiveType = gl.TRIANGLES;
+    var offset = i * 3;
+    var count = 3 * drawLength;
+    gl.drawArrays(primitiveType, offset, count);
+    i += drawLength;
+  }
 }
 
 // Fill the buffer with the values that define a triangle.
@@ -171,10 +219,10 @@ function setGeometry(gl: WebGLRenderingContext, from: number[][]) {
 function genTriangleArray(width: number, height: number, step: number) {
   const r = width / 2;
   const ans = [] as number[][];
-  for (let angle of range(0, Math.PI * 2, ((Math.PI * 2) / 500) * step)) {
-    const nextAngle = angle + ((Math.PI * 2) / 500) * step;
-    for (let dist of range(0, r, step / 2)) {
-      const nextDist = dist + step / 2 + 2;
+  for (let angle of range(0, Math.PI * 2, 0.05)) {
+    const nextAngle = angle + 0.05;
+    for (let dist of range(r * 0.5, r, step / 2)) {
+      const nextDist = dist + step;
 
       const mx = width / 2;
       const my = height / 2;
