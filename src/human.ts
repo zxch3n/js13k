@@ -36,10 +36,9 @@ export class Human extends GameObject implements CameraTarget {
     ctx.restore();
     this.update();
   });
-  gun: ObjectPool = new ObjectPool(
-    ([pos, speed, faceLeft]):GameObject=>{
-  return new Bullet(pos, speed, faceLeft)
-})
+  gun: ObjectPool<Bullet> = new ObjectPool(([pos, speed, faceLeft]) => {
+    return new Bullet(pos, speed, faceLeft);
+  });
 
   planet: Planet;
   constructor(planet: Planet) {
@@ -61,10 +60,14 @@ export class Human extends GameObject implements CameraTarget {
     return xToRadian(this.localPos.x);
   }
 
-  fire(){
-    let bullet = this.gun.instantiate(Bullet.reload(this.localPos, 5, this.faceLeft),
-      this.localPos, 5, this.faceLeft) as Bullet
-    this.planet.addChild(bullet.sprite)
+  fire() {
+    let bullet = this.gun.instantiate(
+      Bullet.reload(this.localPos, 5, this.faceLeft),
+      this.localPos,
+      5,
+      this.faceLeft,
+    ) as Bullet;
+    this.planet.addChild(bullet.sprite);
   }
 
   move(x: number, y: number) {
@@ -83,7 +86,6 @@ export class Human extends GameObject implements CameraTarget {
   /**
    * 对应脚站的地方
    */
-
 
   // TODO: use collision detection
   get onGround() {
@@ -133,8 +135,8 @@ export function addControl(human: Human) {
       human.speedUp(0.2);
     }
     e.key === 'ArrowUp' && human.jump();
-    if (e.key === 'Control'){
-      human.fire()
+    if (e.key === 'Control') {
+      human.fire();
     }
   });
 }
