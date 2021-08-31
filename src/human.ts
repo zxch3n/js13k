@@ -2,7 +2,8 @@ import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget } from './type';
-import GameObject from './gameObject';
+import GameObject, { ObjectPool } from './gameObject';
+import Bullet from './Bullet';
 
 const ALPHA = 0.1;
 
@@ -35,6 +36,10 @@ export class Human extends GameObject implements CameraTarget {
     ctx.restore();
     this.update();
   });
+  gun: ObjectPool = new ObjectPool(
+    ([pos, speed, faceLeft]):GameObject=>{
+  return new Bullet(pos, speed, faceLeft)
+})
 
   planet: Planet;
   constructor(planet: Planet) {
@@ -54,6 +59,12 @@ export class Human extends GameObject implements CameraTarget {
 
   getCameraRotation(): number {
     return xToRadian(this.localPos.x);
+  }
+
+  fire(){
+    let bullet = this.gun.instantiate(Bullet.reload(this.localPos, 5, this.faceLeft),
+      this.localPos, 5, this.faceLeft) as Bullet
+    this.planet.addChild(bullet.sprite)
   }
 
   move(x: number, y: number) {
@@ -122,5 +133,8 @@ export function addControl(human: Human) {
       human.speedUp(0.2);
     }
     e.key === 'ArrowUp' && human.jump();
+    if (e.key === 'Control'){
+      human.fire()
+    }
   });
 }
