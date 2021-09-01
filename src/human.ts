@@ -39,7 +39,7 @@ export class Human implements CameraTarget, LightSource {
   constructor(planet: Planet) {
     this.planet = planet;
     planet.addChild(this.sprite);
-    planet.lightSources.push(this);
+    planet.addLightSource(this);
     this.localPos = { x: 0, y: this.planet.r };
   }
 

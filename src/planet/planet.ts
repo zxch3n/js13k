@@ -29,7 +29,7 @@ export class Planet extends Sprite {
   static materialSurface?: HTMLCanvasElement;
   private atmosphere = new Atmosphere(this);
   private light = new Light(this);
-  lightSources: LightSource[] = [];
+
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
     ctx.save();
@@ -99,13 +99,13 @@ export class Planet extends Sprite {
     });
   }
 
+  addLightSource(lightSource: LightSource) {
+    this.light.lightSources.push(lightSource);
+  }
+
   private updateCache() {
     this.atmosphere.updateCache();
     this.light.updateCache();
-    for (const source of this.lightSources) {
-      this.light.clearShadow(source.getLightPos(), source.getLightRadius());
-    }
-
     this.cache.setSize(this.width, this.height);
     this.cache.setScale(this.cameraScale);
     this.cache.rotate = this.rotate;

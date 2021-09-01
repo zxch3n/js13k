@@ -1,5 +1,6 @@
 import { Planet } from '../planet/planet';
 import { LocalPosition, toGlobal } from '../position';
+import { LightSource } from '../type';
 import { paint } from './paint';
 
 export function light(
@@ -18,6 +19,7 @@ export class Light {
   shadowCache: HTMLCanvasElement;
   planet: Planet;
   canvas: HTMLCanvasElement = document.createElement('canvas');
+  lightSources: LightSource[] = [];
   constructor(planet: Planet) {
     this.planet = planet;
     this.shadowCache = light(Math.max(300, planet.r * planet.cameraScale || 0));
@@ -43,6 +45,9 @@ export class Light {
       }
     }
     this.copyToCanvas();
+    for (const source of this.lightSources) {
+      this.clearShadow(source.getLightPos(), source.getLightRadius());
+    }
   }
 
   getSizeRate() {
