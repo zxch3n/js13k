@@ -23,30 +23,36 @@ export class Light {
   constructor(planet: Planet) {
     this.planet = planet;
     this.shadowCache = light(Math.max(300, planet.r * planet.cameraScale || 0));
-    this.copyToCanvas();
+    this.updateCanvas();
   }
 
-  private maximumSize: number = 3000;
+  private maximumSize: number = 1000;
   updateCache() {
     const newSize = this.planet.r * this.planet.cameraScale * 2 * 1.4;
     if (this.maximumSize && newSize > this.maximumSize) {
-      this.copyToCanvas();
+      if (this.shadowCache.width !== this.maximumSize) {
+        this.paintShadowCache(this.maximumSize);
+      }
+
+      this.updateCanvas();
       return;
     }
 
     if (newSize > this.shadowCache.width * 1.1) {
-      const oldSize = this.shadowCache.width;
-      try {
-        light(newSize, this.shadowCache);
-      } catch (e) {
-        this.maximumSize = this.shadowCache.width;
-        console.error(e);
-        light(oldSize, this.shadowCache);
-      }
+      this.paintShadowCache(newSize);
     }
-    this.copyToCanvas();
-    for (const source of this.lightSources) {
-      this.clearShadow(source.getLightPos(), source.getLightRadius());
+
+    this.updateCanvas();
+  }
+
+  private paintShadowCache(newSize: number) {
+    const oldSize = this.shadowCache.width;
+    try {
+      light(newSize, this.shadowCache);
+    } catch (e) {
+      this.maximumSize = this.shadowCache.width;
+      console.error(e);
+      light(oldSize, this.shadowCache);
     }
   }
 
@@ -55,14 +61,18 @@ export class Light {
     return newSize / this.canvas.width;
   }
 
-  private copyToCanvas() {
+  private updateCanvas() {
     this.canvas.width = this.shadowCache.width;
     this.canvas.height = this.shadowCache.height;
     const ctx = this.canvas.getContext('2d')!;
     ctx.drawImage(this.shadowCache, 0, 0);
+    for (const source of this.lightSources) {
+      this.clearShadow(source.getLightPos(), source.getLightRadius());
+    }
   }
 
   clearShadow(pos: LocalPosition, r: number) {
+    r *= this.planet.cameraScale / this.getSizeRate();
     const gPos = toGlobal(
       { x: pos.x, y: (pos.y * this.planet.cameraScale) / this.getSizeRate() },
       {

@@ -1,5 +1,5 @@
 import { Atmosphere } from '../atmosphere/atmosphere';
-import { Light } from '../atmosphere/paintLight';
+import { Light } from '../atmosphere/light';
 import { CacheDraw } from '../cacheDraw';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {

@@ -21,7 +21,7 @@ export class Atmosphere {
     this.canvas = atmosphere(Math.max(300, planet.r * planet.cameraScale || 0));
   }
 
-  private maximumSize: number = 3000;
+  private maximumSize: number = 1000;
   updateCache() {
     const newSize = this.planet.r * this.planet.cameraScale * 2 * 1.4;
     if (this.maximumSize && newSize > this.maximumSize) {

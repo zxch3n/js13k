@@ -48,7 +48,7 @@ export class Human implements CameraTarget, LightSource {
   }
 
   getLightRadius(): number {
-    return 5;
+    return 10;
   }
 
   async setMaterial(material: Promise<HTMLCanvasElement>) {

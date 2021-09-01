@@ -1,7 +1,7 @@
 import { Story, Meta } from '@storybook/html';
 import { Planet } from '../planet/planet';
 import { Stage } from '../stage';
-import { Light } from './paintLight';
+import { Light } from './light';
 
 export default {
   title: 'Game/Light',
