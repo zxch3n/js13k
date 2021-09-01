@@ -1,11 +1,11 @@
 import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
-import { CameraTarget } from './type';
+import { CameraTarget, LightSource } from './type';
 
 const ALPHA = 0.1;
 
-export class Human implements CameraTarget {
+export class Human implements CameraTarget, LightSource {
   faceLeft = false;
   speedY: number = 0;
   speedX: number = 0;
@@ -39,7 +39,16 @@ export class Human implements CameraTarget {
   constructor(planet: Planet) {
     this.planet = planet;
     planet.addChild(this.sprite);
+    planet.lightSources.push(this);
     this.localPos = { x: 0, y: this.planet.r };
+  }
+
+  getLightPos(): LocalPosition {
+    return this.localPos;
+  }
+
+  getLightRadius(): number {
+    return 5;
   }
 
   async setMaterial(material: Promise<HTMLCanvasElement>) {

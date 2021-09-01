@@ -1,4 +1,5 @@
 import { Planet } from '../planet/planet';
+import { LocalPosition, toGlobal } from '../position';
 import { paint } from './paint';
 
 export function light(
@@ -14,30 +15,66 @@ export function light(
 }
 
 export class Light {
-  canvas: HTMLCanvasElement;
+  shadowCache: HTMLCanvasElement;
   planet: Planet;
+  canvas: HTMLCanvasElement = document.createElement('canvas');
   constructor(planet: Planet) {
     this.planet = planet;
-    this.canvas = light(Math.max(300, planet.r * planet.cameraScale || 0));
+    this.shadowCache = light(Math.max(300, planet.r * planet.cameraScale || 0));
+    this.copyToCanvas();
   }
 
   private maximumSize: number = 3000;
   updateCache() {
     const newSize = this.planet.r * this.planet.cameraScale * 2 * 1.4;
     if (this.maximumSize && newSize > this.maximumSize) {
+      this.copyToCanvas();
       return;
     }
 
-    if (newSize > this.canvas.width * 1.1) {
-      const oldSize = this.canvas.width;
+    if (newSize > this.shadowCache.width * 1.1) {
+      const oldSize = this.shadowCache.width;
       try {
-        light(newSize, this.canvas);
+        light(newSize, this.shadowCache);
       } catch (e) {
-        this.maximumSize = this.canvas.width;
+        this.maximumSize = this.shadowCache.width;
         console.error(e);
-        light(oldSize, this.canvas);
+        light(oldSize, this.shadowCache);
       }
     }
+    this.copyToCanvas();
+  }
+
+  getSizeRate() {
+    const newSize = this.planet.r * this.planet.cameraScale * 2 * 1.4;
+    return newSize / this.canvas.width;
+  }
+
+  private copyToCanvas() {
+    this.canvas.width = this.shadowCache.width;
+    this.canvas.height = this.shadowCache.height;
+    const ctx = this.canvas.getContext('2d')!;
+    ctx.drawImage(this.shadowCache, 0, 0);
+  }
+
+  clearShadow(pos: LocalPosition, r: number) {
+    const gPos = toGlobal(
+      { x: pos.x, y: (pos.y * this.planet.cameraScale) / this.getSizeRate() },
+      {
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2,
+      },
+    );
+    const ctx = this.canvas.getContext('2d')!;
+    ctx.save();
+    ctx.translate(gPos.x, gPos.y);
+    const radial = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    radial.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    radial.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = radial;
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.restore();
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -64,15 +101,15 @@ function paintLight(canvas: HTMLCanvasElement, radius: number, angle: number) {
   float angleMatch = max(1.0 - abs(( angle / (2.0 * PI) ) - (${angle.toFixed(
     10,
   )} / 2.0 * PI)) * 3.0, 0.0);
-  float f_0 = u_radius * 0.8;
-  float f_1 = u_radius - 15.0;
+  float f_0 = u_radius * 0.5;
+  float f_1 = u_radius - 10.0;
   float f_2 = u_radius * 1.1;
   float blue_opacity = 0.6;
-  vec4 v_0 = vec4(0, 0, 0, 0);
-  vec4 v_1 = vec4(angleMatch * 0.9, angleMatch * 0.9, angleMatch, 0.2);
+  vec4 v_0 = vec4(0, 0, 0, 1);
+  vec4 v_1 = vec4(0, 0, 0, 1.0 - angleMatch * 0.8);
   vec4 v_2 = vec4(0, 0, 0, 0);
   if (dist < f_0) {
-    v_color = vec4(0, 0, 0, 0);
+    v_color = v_0;
   } else if (dist < f_1) {
     float rate = (dist - f_0) / (f_1 - f_0);
     v_color = v_0 + (v_1 - v_0) * rate;

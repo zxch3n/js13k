@@ -1,4 +1,5 @@
-import { Atmosphere, atmosphere } from '../atmosphere/atmosphere';
+import { Atmosphere } from '../atmosphere/atmosphere';
+import { Light } from '../atmosphere/paintLight';
 import { CacheDraw } from '../cacheDraw';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {
@@ -8,6 +9,7 @@ import {
   xToRadian,
 } from '../position';
 import { Sprite } from '../sprite';
+import { LightSource } from '../type';
 
 /**
  * 多少比例是地心
@@ -25,7 +27,9 @@ export class Planet extends Sprite {
   cache: CacheDraw = new CacheDraw();
   static material?: HTMLCanvasElement;
   static materialSurface?: HTMLCanvasElement;
-  atmosphere = new Atmosphere(this);
+  private atmosphere = new Atmosphere(this);
+  private light = new Light(this);
+  lightSources: LightSource[] = [];
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
     ctx.save();
@@ -97,6 +101,11 @@ export class Planet extends Sprite {
 
   private updateCache() {
     this.atmosphere.updateCache();
+    this.light.updateCache();
+    for (const source of this.lightSources) {
+      this.light.clearShadow(source.getLightPos(), source.getLightRadius());
+    }
+
     this.cache.setSize(this.width, this.height);
     this.cache.setScale(this.cameraScale);
     this.cache.rotate = this.rotate;
@@ -108,6 +117,7 @@ export class Planet extends Sprite {
     this.updateCache();
     this.atmosphere.draw(ctx);
     this.cache.draw(ctx, this.drawPlanetOnCache);
+    this.light.draw(ctx);
     ctx.restore();
     ctx.save();
     this.setDrawTransform(ctx);

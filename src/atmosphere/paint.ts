@@ -133,7 +133,7 @@ function genTriangleArray(width: number, height: number, step: number) {
   const ans = [] as number[][];
   for (let angle of range(0, Math.PI * 2, 0.05)) {
     const nextAngle = angle + 0.05;
-    for (let dist of range(r * 0.5, r, step / 2)) {
+    for (let dist of range(r * 0.4, r, step / 2)) {
       const nextDist = dist + step;
 
       const mx = width / 2;
@@ -142,10 +142,10 @@ function genTriangleArray(width: number, height: number, step: number) {
       const y0 = my - dist * Math.cos(angle);
       const x1 = mx + nextDist * Math.sin(angle);
       const y1 = my - nextDist * Math.cos(angle);
-      const x2 = mx + nextDist * Math.sin(nextAngle);
-      const y2 = my - nextDist * Math.cos(nextAngle);
-      const x3 = mx + dist * Math.sin(nextAngle);
-      const y3 = my - dist * Math.cos(nextAngle);
+      const x2 = mx + dist * Math.sin(nextAngle);
+      const y2 = my - dist * Math.cos(nextAngle);
+      const x3 = mx + nextDist * Math.sin(nextAngle);
+      const y3 = my - nextDist * Math.cos(nextAngle);
       ans.push([x0, y0, x1, y1, x2, y2]);
       ans.push([x1, y1, x2, y2, x3, y3]);
     }
