@@ -69,6 +69,7 @@ export class Human implements CameraTarget, LightSource {
     this.localPos = { x: localPos.x + x, y: localPos.y + y };
     if (this.onGround) {
       this.speedY = 0;
+      this.localPos.y = Math.round(this.localPos.y);
     }
   }
 
