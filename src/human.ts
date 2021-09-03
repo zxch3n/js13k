@@ -2,15 +2,18 @@ import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget } from './type';
-import GameObject, { ObjectPool } from './gameObject';
+import GameObject, { GEvent, ObjectPool } from './gameObject';
 import Bullet from './Bullet';
+import { Gun } from './gun';
 
 const ALPHA = 0.1;
+const MAX_MOVE_SPEED = 0.2;
 
 export class Human extends GameObject implements CameraTarget {
   faceLeft = false;
   speedY: number = 0;
   speedX: number = 0;
+  bullets: Bullet[] = [];
   sprite: Sprite = new Sprite((ctx) => {
     /**
      * FIXME: 目前没对应到脚站的地方
@@ -36,9 +39,7 @@ export class Human extends GameObject implements CameraTarget {
     ctx.restore();
     this.update();
   });
-  gun: ObjectPool<Bullet> = new ObjectPool(([pos, speed, faceLeft]) => {
-    return new Bullet(pos, speed, faceLeft);
-  });
+  gun = new Gun(this);
 
   planet: Planet;
   constructor(planet: Planet) {
@@ -60,16 +61,6 @@ export class Human extends GameObject implements CameraTarget {
     return xToRadian(this.localPos.x);
   }
 
-  fire() {
-    let bullet = this.gun.instantiate(
-      Bullet.reload(this.localPos, 5, this.faceLeft),
-      this.localPos,
-      5,
-      this.faceLeft,
-    ) as Bullet;
-    this.planet.addChild(bullet.sprite);
-  }
-
   move(x: number, y: number) {
     this.faceLeft = x < 0;
     const localPos = this.localPos;
@@ -80,7 +71,7 @@ export class Human extends GameObject implements CameraTarget {
   }
 
   speedUp(x: number) {
-    this.speedX = clamp(this.speedX + x, -0.5, 0.5);
+    this.speedX = clamp(this.speedX + x, -MAX_MOVE_SPEED, MAX_MOVE_SPEED);
   }
 
   /**
@@ -127,16 +118,16 @@ function clamp(x: number, min: number, max: number) {
 export function addControl(human: Human) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
-      human.move(-0.5, 0);
+      human.move(-0.3, 0);
       human.speedUp(-0.2);
     }
     if (e.key === 'ArrowRight') {
-      human.move(0.5, 0);
+      human.move(0.3, 0);
       human.speedUp(0.2);
     }
     e.key === 'ArrowUp' && human.jump();
-    if (e.key === 'Control') {
-      human.fire();
+    if (e.key === 'c') {
+      human.gun.fire();
     }
   });
 }

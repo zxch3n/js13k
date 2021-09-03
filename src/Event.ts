@@ -1,2 +1,0 @@
-import GameObject from './gameObject';
-

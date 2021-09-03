@@ -35,11 +35,19 @@ export default abstract class GameObject {
 }
 
 export class GEvent {
+  public eventName: string;
+  public target?: GameObject;
+  public extra?: Object;
+
   constructor(
-    public eventName: string,
-    public target?: GameObject,
-    public extra?: Object,
-  ) {}
+    eventName: string,
+    target?: GameObject,
+    extra?: Object,
+  ) {
+    this.eventName = eventName;
+    this.target = target;
+    this.extra = extra;
+  }
 }
 
 export class ObjectPool<T extends GameObject> {
@@ -65,4 +73,16 @@ export class ObjectPool<T extends GameObject> {
     let items = this.pool.filter((x) => !x.isAlive);
     return items.pop();
   }
+}
+
+export interface Life{
+  maxHp: number;
+  curHp: number;
+}
+
+export interface Attacker{
+  damage: number;
+  attackDistance: number;
+  attack_interval: number;
+  last_fire_time:number;
 }
