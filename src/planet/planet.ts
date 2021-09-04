@@ -10,7 +10,7 @@ import {
 } from '../position';
 import { Sprite } from '../sprite';
 import { LightSource } from '../type';
-import { Tile, Tiles, TILE_EMPTY } from './tiles';
+import { Tile, Tiles, TILE_DIRT, TILE_EMPTY } from './tiles';
 
 /**
  * 多少比例是地心
@@ -141,6 +141,10 @@ export class Planet extends Sprite {
 
   getDistanceToSurface(x: number, y: number) {
     return this.tiles.getDistanceToSurface(x, y);
+  }
+
+  hasTile(x: number, y: number) {
+    return this.tiles.getTile(x, y).type === TILE_DIRT;
   }
 
   removeTile(x: number, y: number) {

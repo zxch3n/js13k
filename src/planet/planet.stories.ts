@@ -52,6 +52,9 @@ const planet = new Planet({ x: 0, y: 0 }, 50);
 stage.addChild(planet);
 planet.removeTile(0, 50);
 
+/**
+ * FIXME: CANNOT clear cache inside createPlanet
+ */
 function createPlanet({ x, y, scale }: Props) {
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);

@@ -1,3 +1,4 @@
+import { range } from './atmosphere/range';
 import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
@@ -66,15 +67,31 @@ export class Human implements CameraTarget, LightSource {
   move(x: number, y: number) {
     this.faceLeft = x < 0;
     const localPos = this.localPos;
-    this.localPos = { x: localPos.x + x, y: localPos.y + y };
-    if (this.onGround) {
-      this.speedY = 0;
-      this.localPos.y = Math.round(this.localPos.y);
+    let nextX = localPos.x + x;
+    let nextY = localPos.y + y;
+    if (this.planet.hasTile(nextX, nextY + 1)) {
+      this.speedX = -0;
     }
+
+    if (this.planet.hasTile(localPos.x + getDirection(x) / 2, nextY + 1)) {
+      nextX = localPos.x;
+      this.speedX = 0;
+    }
+
+    if (y < 0) {
+      for (let y of range(Math.round(localPos.y), Math.round(nextY))) {
+        if (this.getOnGround({ x: nextX, y })) {
+          nextY = y;
+          break;
+        }
+      }
+    }
+
+    this.localPos = { x: nextX, y: nextY };
   }
 
   speedUp(x: number) {
-    this.speedX = clamp(this.speedX + x, -0.5, 0.5);
+    this.speedX = clamp(this.speedX + x, -0.3, 0.3);
   }
 
   /**
@@ -88,9 +105,9 @@ export class Human implements CameraTarget, LightSource {
     this.sprite.pos = toGlobal(pos);
   }
 
-  // TODO: use collision detection
-  get onGround() {
-    return this.localPos.y <= this.planet.r;
+  getOnGround(pos = this.localPos) {
+    const distance = this.planet.getDistanceToSurface(pos.x, pos.y);
+    return distance < 0.0001;
   }
 
   jump() {
@@ -108,14 +125,16 @@ export class Human implements CameraTarget, LightSource {
    * @param elapsed
    */
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60) {
-    if (this.speedY > -4 && !this.onGround) {
-      this.speedY -= ALPHA * elapsed;
+    if (this.speedY > -4 && !this.getOnGround()) {
+      console.log('DROP!!!');
+      this.speedY = Math.max(this.speedY - ALPHA * elapsed, -4);
     }
 
-    if (this.onGround) {
+    if (this.getOnGround()) {
       this.speedX = this.speedX * 0.9;
-    } else {
-      this.speedX = this.speedX * 0.99;
+      if (this.speedY < 0) {
+        this.speedY = 0;
+      }
     }
 
     this.lastUpdated = +new Date();
@@ -139,4 +158,9 @@ export function addControl(human: Human) {
     }
     e.key === 'ArrowUp' && human.jump();
   });
+}
+
+function getDirection(x: number) {
+  if (Math.abs(x) < 0.0001) return 0;
+  return x < 0 ? -1 : 1;
 }

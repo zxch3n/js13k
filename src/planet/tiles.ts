@@ -24,6 +24,10 @@ export class Tiles {
   }
 
   getTile(x: number, y: number): Tile {
+    if (y > this.r) {
+      return { type: TILE_EMPTY };
+    }
+
     x = Math.round(x);
     y = Math.round(y);
     return { type: this.data[this.toIndex(x, y)] };
@@ -39,8 +43,17 @@ export class Tiles {
       this.updateCache();
     }
 
-    x = Math.round(x) % this.width;
-    return y - this.#surfaceTile[x];
+    if (x < 0) {
+      x = (Math.round(x) + this.width) % this.width;
+    } else {
+      x = Math.round(x) % this.width;
+    }
+    const surface = this.#surfaceTile[x];
+    if (surface == null) {
+      debugger;
+    }
+
+    return y - surface;
   }
 
   #surfaceTile: number[] = [];
