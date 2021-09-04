@@ -126,7 +126,6 @@ export class Human implements CameraTarget, LightSource {
    */
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60) {
     if (this.speedY > -4 && !this.getOnGround()) {
-      console.log('DROP!!!');
       this.speedY = Math.max(this.speedY - ALPHA * elapsed, -4);
     }
 
