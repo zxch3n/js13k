@@ -10,11 +10,12 @@ import {
 } from '../position';
 import { Sprite } from '../sprite';
 import { LightSource } from '../type';
+import { Tile, Tiles, TILE_EMPTY } from './tiles';
 
 /**
  * 多少比例是地心
  */
-const CORE_RATE = 0.5;
+export const CORE_RATE = 0.5;
 
 /**
  * 缩很小的时候不知道会不会影响
@@ -29,6 +30,7 @@ export class Planet extends Sprite {
   static materialSurface?: HTMLCanvasElement;
   private atmosphere = new Atmosphere(this);
   private light = new Light(this);
+  private tiles: Tiles;
 
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
@@ -39,8 +41,12 @@ export class Planet extends Sprite {
     let size = 0;
     // 依赖 tilePositions 中 y 是递减的
     for (const local of this.tilePositions(globalScale)) {
+      if (local.type === TILE_EMPTY) {
+        continue;
+      }
+
       ctx.save();
-      ctx.rotate(xToRadian(local.x));
+      ctx.rotate(xToRadian(local.x) - Math.PI / 2);
       size = (this.TILE_SIZE * local.y) / this.r / globalScale;
       const scale = size / 32;
       let translateX: number;
@@ -63,13 +69,13 @@ export class Planet extends Sprite {
         ctx.translate(16, 16);
         ctx.rotate(Math.PI / 2);
         ctx.translate(-16, -16);
-        if (Planet.materialSurface && this.r < local.y + 0.5) {
+        if (Planet.materialSurface && local.toSurface > -0.5) {
           ctx.drawImage(Planet.materialSurface, 0, 0);
         } else {
           ctx.drawImage(Planet.material, 0, 0);
         }
       }
-      ctx.fillStyle = `rgba(0, 0, 0, ${(local.toSurface * 3) / this.r})`;
+      ctx.fillStyle = `rgba(0, 0, 0, ${(-local.toSurface * 3) / this.r})`;
       ctx.fillRect(0, 0, 32, 32);
       ctx.restore();
     }
@@ -83,9 +89,9 @@ export class Planet extends Sprite {
 
   constructor(pos: GlobalPosition, r: number) {
     super((ctx: CanvasRenderingContext2D) => {});
-
     this.pos = pos;
     this.r = r;
+    this.tiles = new Tiles(TILE_NUM, r);
     this.height = this.width = this.r * 2;
     this.anchor = 0.5;
     this.updateCache();
@@ -133,24 +139,25 @@ export class Planet extends Sprite {
     return 16;
   }
 
-  // *tilePositionsInsideViewport(scale = 1): Generator<LocalPosition> {
-  //   let i = 0;
-  //   for (const local of this.tilePositions(scale)) {
-  //     const pos = toGlobal(local);
-  //     if (this.insideStage(pos)) {
-  //       i++;
-  //       yield local;
-  //     }
-  //   }
-  //   console.log(i);
-  // }
+  getDistanceToSurface(x: number, y: number) {
+    return this.tiles.getDistanceToSurface(x, y);
+  }
 
-  *tilePositions(scale = 1): Generator<LocalPosition & { toSurface: number }> {
+  removeTile(x: number, y: number) {
+    console.log('REMOVE');
+    this.tiles.setTile(x, y, { type: TILE_EMPTY });
+    this.cache.clearCache();
+  }
+
+  *tilePositions(
+    scale = 1,
+  ): Generator<LocalPosition & { toSurface: number } & Tile> {
     const step = Math.max(this.TILE_SIZE / Math.max(scale, 1), 1);
     for (let y = this.r; y > Math.max(this.r * CORE_RATE, 0); y -= step) {
       for (let x = 0; x < TILE_NUM; x += step) {
-        // TODO: get correct to surface value
-        yield { x, y, toSurface: this.r - y };
+        const tile = this.tiles.getTile(x, y);
+        const toSurface = this.tiles.getDistanceToSurface(x, y);
+        yield { x, y, toSurface, type: tile.type };
       }
     }
   }

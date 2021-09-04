@@ -50,6 +50,7 @@ canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
 stage.addChild(planet);
+planet.removeTile(0, 50);
 
 function createPlanet({ x, y, scale }: Props) {
   ctx!.fillStyle = 'black';
@@ -59,11 +60,11 @@ function createPlanet({ x, y, scale }: Props) {
 
   stage.camera.scale = Math.max(scale, 1);
   stage.draw();
-  requestAnimationFrame(function update() {
-    stage.draw();
-    planet.rotate += 0.02;
-    requestAnimationFrame(update);
-  });
+  // requestAnimationFrame(function update() {
+  //   stage.draw();
+  //   // planet.rotate += 0.002;
+  //   requestAnimationFrame(update);
+  // });
   return canvas;
 }
 
