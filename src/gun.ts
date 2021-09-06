@@ -1,27 +1,28 @@
-import { ObjectPool } from './gameObject';
+import { Attacker, ObjectPool } from './gameObject';
 import Bullet from './Bullet';
 import { Position } from './position';
 import { Human } from './human';
 
-export class Gun extends ObjectPool<Bullet>{
-  private attack_interval = 300;
-  private last_fire_time = 0;
-  private human: Human;
+export class Gun extends ObjectPool<Bullet> implements Attacker{
+  attackInterval = 300;
+  lastFireTime = 0;
+  human: Human;
+  attackDistance = 50;
+  damage = 20;
 
   constructor(human: Human) {
-    super(([pos, faceLeft]) => {
-      return new Bullet(pos, faceLeft);
+    super(([pos, damage, distance, faceLeft]) => {
+      return new Bullet(pos, damage, distance, faceLeft);
     });
     this.human = human;
   }
 
   fire(){
     const date = +new Date()
-    console.log(typeof date);
-    if(+new Date() - this.last_fire_time < this.attack_interval){
+    if(+new Date() - this.lastFireTime < this.attackInterval){
      return
     }
-    this.last_fire_time = date;
+    this.lastFireTime = date;
     let x;
     if (this.human.faceLeft) {
       x = this.human.localPos.x - 0.5;
@@ -30,8 +31,10 @@ export class Gun extends ObjectPool<Bullet>{
     }
     const pos: Position = {x: x, y: this.human.localPos.y - 0.15}
     let bullet = this.instantiate(
-      Bullet.reload(pos, this.human.faceLeft),
+      Bullet.reload(pos, this.damage, this.attackDistance, this.human.faceLeft),
       pos,
+      this.damage,
+      this.attackDistance,
       this.human.faceLeft,
     ) as Bullet;
     this.human.planet.addChild(bullet.sprite);
@@ -43,5 +46,7 @@ export class Gun extends ObjectPool<Bullet>{
       this.human.bullets = this.human.bullets.filter((x) => x !== bullet);
     })
   }
+
+
 
 }

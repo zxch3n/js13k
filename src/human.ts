@@ -2,55 +2,31 @@ import { Planet } from './planet/planet';
 import { LocalPosition, Position, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget } from './type';
-import GameObject, { GEvent, ObjectPool } from './gameObject';
+import GameObject, { GEvent, Life, ObjectPool } from './gameObject';
 import Bullet from './Bullet';
 import { Gun } from './gun';
+import { HumanMaterial, ZombieMaterial } from './material';
 
 const ALPHA = 0.1;
 const MAX_MOVE_SPEED = 0.2;
 
-export class Human extends GameObject implements CameraTarget {
+export class Human extends GameObject implements CameraTarget, Life {
   faceLeft = false;
+  maxHp: number = 100;
+  curHp: number = 100;
   speedY: number = 0;
   speedX: number = 0;
   bullets: Bullet[] = [];
-  sprite: Sprite = new Sprite((ctx) => {
-    /**
-     * FIXME: 目前没对应到脚站的地方
-     */
-    ctx.save();
-    ctx.fillStyle = 'red';
-    ctx.rotate(xToRadian(this.localPos.x));
-    const material = this.sprite.material;
-    if (material) {
-      if (this.faceLeft) {
-        ctx.scale(-1, 1);
-      }
-      ctx.drawImage(
-        material,
-        -this.sprite.width / 2,
-        -this.sprite.height / 2,
-        this.sprite.width,
-        this.sprite.height,
-      );
-    } else {
-      ctx.fillRect(-1, -2, 1, 2);
-    }
-    ctx.restore();
-    this.update();
-  });
+  sprite: Sprite;
   gun = new Gun(this);
 
   planet: Planet;
   constructor(planet: Planet) {
     super();
     this.planet = planet;
+    this.sprite = this.buildSprite(HumanMaterial);
     planet.addChild(this.sprite);
     this.localPos = { x: 0, y: this.planet.r };
-  }
-
-  async setMaterial(material: Promise<HTMLCanvasElement>) {
-    this.sprite.material = await material;
   }
 
   getCameraPos(): Position {
@@ -109,6 +85,8 @@ export class Human extends GameObject implements CameraTarget {
     this.lastUpdated = +new Date();
     this.move(this.speedX, this.speedY);
   }
+
+
 }
 
 function clamp(x: number, min: number, max: number) {

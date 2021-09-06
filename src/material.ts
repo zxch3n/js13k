@@ -63,3 +63,4 @@ export async function getMaterial(
 }
 
 export const HumanMaterial = getMaterial(0, 2, 10, 15);
+export const ZombieMaterial = getMaterial(0, 18, 10, 14);

@@ -1,6 +1,7 @@
 import { Sprite } from './sprite';
 import {Position, xToRadian, toGlobal } from './position';
-import GameObject, { GEvent } from './gameObject';
+import GameObject, { GEvent, Life } from './gameObject';
+import { Zombie } from './zombie';
 
 export default class Bullet extends GameObject{
   damage = 20;
@@ -18,10 +19,12 @@ export default class Bullet extends GameObject{
   public faceLeft: boolean;
 
 
-  constructor(pos: Position, faceLeft: boolean) {
+  constructor(pos: Position, damage:number, maxFlyDistance: number, faceLeft: boolean) {
     super();
     this.localPos = pos;
     this.faceLeft = faceLeft;
+    this.maxFlyDistance = maxFlyDistance;
+    this.damage = damage;
   }
 
   move(x: number){
@@ -33,12 +36,22 @@ export default class Bullet extends GameObject{
     this.flewDistance += Math.abs(x);
   }
 
-  static reload(pos:Position, faceLeft:boolean){
+  hit(target: Zombie){
+    target.curHp -= this.damage;
+    this.emit(new GEvent("bulletGG", this))
+    if (target.curHp <= 0){
+      target.emit(new GEvent("zombieDie", target))
+    }
+  }
+
+  static reload(pos:Position, damage: number, maxFlyDistance: number, faceLeft:boolean){
     return (bullet:Bullet) => {
       bullet.isAlive = true;
       bullet.localPos = pos;
       bullet.lastUpdated = +new Date();
       bullet.faceLeft = faceLeft;
+      bullet.damage = damage;
+      bullet.maxFlyDistance = maxFlyDistance;
       bullet.flewDistance = 0;
     }
   }

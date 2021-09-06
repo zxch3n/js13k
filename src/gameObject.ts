@@ -1,11 +1,46 @@
-import { LocalPosition, toGlobal } from './position';
+import { LocalPosition, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 export default abstract class GameObject {
-  sprite?: Sprite;
+  sprite: Sprite;
+  faceLeft: boolean = false;
   isAlive = true; // if !isAlive Don't render
   listeners: { [event: string]: { (event: GEvent): void }[] } = { all: [] };
 
   protected lastUpdated = +new Date();
+
+  protected constructor() {
+    this.sprite = this.buildSprite();
+  }
+
+  buildSprite(material?: Promise<HTMLCanvasElement>){
+    const sprite = new Sprite((ctx) => {
+      /**
+       * FIXME: 目前没对应到脚站的地方
+       */
+      ctx.save();
+      ctx.fillStyle = 'red';
+      ctx.rotate(xToRadian(this.localPos.x));
+      const material = this.sprite.material;
+      if (material) {
+        if (this.faceLeft) {
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(
+          material,
+          -this.sprite.width / 2,
+          -this.sprite.height / 2,
+          this.sprite.width,
+          this.sprite.height,
+        );
+      } else {
+        ctx.fillRect(-1, -2, 1, 2);
+      }
+      ctx.restore();
+      this.update();
+    });
+    if (material) sprite.setMaterial(material);
+    return sprite
+  }
 
   addListener(eventName: string, listener: { (event: GEvent): void }): void {
     if (!(eventName in this.listeners)) {
@@ -75,7 +110,7 @@ export class ObjectPool<T extends GameObject> {
   }
 }
 
-export interface Life{
+export interface Life {
   maxHp: number;
   curHp: number;
 }
@@ -83,6 +118,6 @@ export interface Life{
 export interface Attacker{
   damage: number;
   attackDistance: number;
-  attack_interval: number;
-  last_fire_time:number;
+  attackInterval: number;
+  lastFireTime:number;
 }
