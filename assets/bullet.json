@@ -1,0 +1,48 @@
+{
+    "rowLen": 5513,
+    "endPattern": 2,
+    "songData": [
+        {
+            "osc1_oct": 8,
+            "osc1_det": 0,
+            "osc1_detune": 0,
+            "osc1_xenv": 1,
+            "osc1_vol": 160,
+            "osc1_waveform": 0,
+            "osc2_oct": 8,
+            "osc2_det": 0,
+            "osc2_detune": 0,
+            "osc2_xenv": 1,
+            "osc2_vol": 128,
+            "osc2_waveform": 0,
+            "noise_fader": 210,
+            "env_attack": 50,
+            "env_sustain": 200,
+            "env_release": 6800,
+            "env_master": 164,
+            "fx_filter": 4,
+            "fx_freq": 4425,
+            "fx_resonance": 223,
+            "fx_delay_time": 0,
+            "fx_delay_amt": 0,
+            "fx_pan_freq": 3,
+            "fx_pan_amt": 28,
+            "lfo_osc1_freq": 1,
+            "lfo_fx_freq": 1,
+            "lfo_freq": 4,
+            "lfo_amt": 60,
+            "lfo_waveform": 0,
+            "p": [
+                1
+            ],
+            "c": [
+                {
+                    "n": [
+                        140
+                    ]
+                }
+            ]
+        }
+    ],
+    "songLen": 9
+}
