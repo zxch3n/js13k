@@ -133,7 +133,7 @@ function genTriangleArray(width: number, height: number, step: number) {
   const ans = [] as number[][];
   for (let angle of range(0, Math.PI * 2, 0.05)) {
     const nextAngle = angle + 0.05;
-    for (let dist of range(r * 0.4, r, step / 2)) {
+    for (let dist of range(r * 0.2, r, step / 2)) {
       const nextDist = dist + step;
 
       const mx = width / 2;

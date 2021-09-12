@@ -21,11 +21,12 @@ export class Human implements CameraTarget, LightSource {
         ctx.scale(-1, 1);
       }
       const scale = this.localPos.y / this.planet.r;
+      ctx.translate(0, this.sprite.height + this.sprite.height / 12);
       ctx.scale(scale, scale);
       ctx.drawImage(
         material,
         -this.sprite.width / 2,
-        +this.sprite.height / 2 + this.sprite.height / 12,
+        -this.sprite.height / 2,
         this.sprite.width,
         this.sprite.height,
       );
@@ -69,10 +70,7 @@ export class Human implements CameraTarget, LightSource {
     let tried = 0;
     let nextX = localPos.x + x;
     let nextY = localPos.y + y;
-    while (
-      this.planet.hasTile(nextX, nextY) ||
-      this.planet.hasTile(nextX, nextY + 1)
-    ) {
+    while (this.planet.hasTile(nextX, nextY)) {
       this.speedX = 0;
       x = absMax(x - getDirection(x) / 10, x / 2);
       y = absMax(y - getDirection(y) / 10, y / 2);

@@ -30,7 +30,7 @@ export class Planet extends Sprite {
   static materialSurface?: HTMLCanvasElement;
   private atmosphere = new Atmosphere(this);
   private light = new Light(this);
-  private tiles: Tiles;
+  tiles: Tiles;
 
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
@@ -69,14 +69,12 @@ export class Planet extends Sprite {
         ctx.translate(16, 16);
         ctx.rotate(Math.PI / 2);
         ctx.translate(-16, -16);
-        if (Planet.materialSurface && local.toSurface > -0.5) {
+        if (Planet.materialSurface && local.isSurface) {
           ctx.drawImage(Planet.materialSurface, 0, 0);
         } else {
           ctx.drawImage(Planet.material, 0, 0);
         }
       }
-      ctx.fillStyle = `rgba(0, 0, 0, ${(-local.toSurface * 3) / this.r})`;
-      ctx.fillRect(0, 0, 32, 32);
       ctx.restore();
     }
 
@@ -160,14 +158,50 @@ export class Planet extends Sprite {
 
   *tilePositions(
     scale = 1,
-  ): Generator<LocalPosition & { toSurface: number } & Tile> {
+  ): Generator<
+    LocalPosition & { toSurface: number; isSurface: boolean } & Tile
+  > {
     const step = Math.max(this.TILE_SIZE / Math.max(scale, 1), 1);
     for (let y = this.r; y > Math.max(this.r * CORE_RATE, 0); y -= step) {
       for (let x = 0; x < TILE_NUM; x += step) {
         const tile = this.tiles.getTile(x, y);
         const toSurface = this.tiles.getDistanceToSurface(x, y);
-        yield { x, y, toSurface, type: tile.type };
+        yield {
+          x,
+          y,
+          toSurface,
+          type: tile.type,
+          isSurface:
+            tile.type === TILE_DIRT &&
+            this.tiles.getTile(x, y + 1).type === TILE_EMPTY,
+        };
       }
     }
   }
+}
+
+export function getDistancesToCore(r: number, globalScale: number) {
+  const arr: number[] = [];
+  const TILE_SIZE = 16;
+  let posY = r;
+  let size = (TILE_SIZE * posY) / r / globalScale;
+  let last = r;
+  for (let i = 0; i < 100; i++) {
+    arr.push(last);
+    last -= size;
+    size = (TILE_SIZE * posY) / r / globalScale;
+  }
+
+  return arr;
+}
+
+export function planetChildDraw(
+  ctx: CanvasRenderingContext2D,
+  planet: Planet,
+  pos: LocalPosition,
+  draw: (ctx: CanvasRenderingContext2D) => void,
+) {
+  ctx.save();
+  draw(ctx);
+  ctx.restore();
 }
