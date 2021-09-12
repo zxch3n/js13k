@@ -38,6 +38,7 @@ planet.removeTile(0, 48);
 planet.removeTile(1, 50);
 planet.removeTile(1, 49);
 planet.removeTile(2, 50);
+planet.removeTile(3, 50);
 const human = new Human(planet);
 human.setMaterial(HumanMaterial);
 stage.camera.focus(human);

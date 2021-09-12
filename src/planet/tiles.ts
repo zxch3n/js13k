@@ -19,17 +19,28 @@ export class Tiles {
     this.data.fill(TILE_DIRT);
   }
 
+  random() {
+    let last = this.r;
+    for (let i = 0; i < this.width; i++) {
+      const diff = Math.round(Math.random() * 2) - 1;
+      last = last + diff;
+      for (let j = last; j <= this.r; j++) {
+        this.data[this.toIndex(i, j)] = TILE_EMPTY;
+      }
+    }
+  }
+
   private toIndex(x: number, y: number): number {
-    return (y % (this.r + 1)) * this.width + (x % this.width);
+    return y * this.width + ((x + this.width) % this.width);
   }
 
   getTile(x: number, y: number): Tile {
+    x = Math.round(x);
+    y = Math.round(y);
     if (y > this.r) {
       return { type: TILE_EMPTY };
     }
 
-    x = Math.round(x);
-    y = Math.round(y);
     return { type: this.data[this.toIndex(x, y)] };
   }
 

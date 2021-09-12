@@ -10,10 +10,8 @@ export class Human implements CameraTarget, LightSource {
   faceLeft = false;
   speedY: number = 0;
   speedX: number = 0;
+  pressState: 'left' | 'right' | 'none' = 'none';
   sprite: Sprite = new Sprite((ctx) => {
-    /**
-     * FIXME: 目前没对应到脚站的地方
-     */
     ctx.save();
     ctx.fillStyle = 'red';
     ctx.rotate(xToRadian(this.localPos.x));
@@ -22,10 +20,12 @@ export class Human implements CameraTarget, LightSource {
       if (this.faceLeft) {
         ctx.scale(-1, 1);
       }
+      const scale = this.localPos.y / this.planet.r;
+      ctx.scale(scale, scale);
       ctx.drawImage(
         material,
         -this.sprite.width / 2,
-        -this.sprite.height / 2,
+        +this.sprite.height / 2 + this.sprite.height / 12,
         this.sprite.width,
         this.sprite.height,
       );
@@ -41,7 +41,7 @@ export class Human implements CameraTarget, LightSource {
     this.planet = planet;
     planet.addChild(this.sprite);
     planet.addLightSource(this);
-    this.localPos = { x: 0, y: this.planet.r };
+    this.localPos = { x: 0, y: this.planet.r + 10 };
   }
 
   getLightPos(): LocalPosition {
@@ -65,29 +65,32 @@ export class Human implements CameraTarget, LightSource {
   }
 
   move(x: number, y: number) {
-    this.faceLeft = x < 0;
     const localPos = this.localPos;
+    let tried = 0;
     let nextX = localPos.x + x;
     let nextY = localPos.y + y;
-    if (this.planet.hasTile(nextX, nextY + 1)) {
-      this.speedX = -0;
-    }
-
-    if (this.planet.hasTile(localPos.x + getDirection(x) / 2, nextY + 1)) {
-      nextX = localPos.x;
+    while (
+      this.planet.hasTile(nextX, nextY) ||
+      this.planet.hasTile(nextX, nextY + 1)
+    ) {
       this.speedX = 0;
-    }
-
-    if (y < 0) {
-      for (let y of range(Math.round(localPos.y), Math.round(nextY))) {
-        if (this.getOnGround({ x: nextX, y })) {
-          nextY = y;
-          break;
-        }
+      x = absMax(x - getDirection(x) / 10, x / 2);
+      y = absMax(y - getDirection(y) / 10, y / 2);
+      nextX = localPos.x + x;
+      nextY = localPos.y + y;
+      if (tried++ > 100) {
+        console.error('MAX TRIED');
+        return;
       }
     }
 
-    this.localPos = { x: nextX, y: nextY };
+    const pos = { x: nextX, y: nextY };
+    if (y < 0 && this.getOnGround(pos)) {
+      pos.y = Math.round(pos.y);
+      this.speedY = 0;
+    }
+
+    this.localPos = pos;
   }
 
   speedUp(x: number) {
@@ -106,8 +109,7 @@ export class Human implements CameraTarget, LightSource {
   }
 
   getOnGround(pos = this.localPos) {
-    const distance = this.planet.getDistanceToSurface(pos.x, pos.y);
-    return distance < 0.0001;
+    return this.planet.hasTile(pos.x, pos.y - 1);
   }
 
   jump() {
@@ -125,19 +127,28 @@ export class Human implements CameraTarget, LightSource {
    * @param elapsed
    */
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60) {
+    this.updatePosOnPressState();
     if (this.speedY > -4 && !this.getOnGround()) {
       this.speedY = Math.max(this.speedY - ALPHA * elapsed, -4);
     }
 
     if (this.getOnGround()) {
       this.speedX = this.speedX * 0.9;
-      if (this.speedY < 0) {
-        this.speedY = 0;
-      }
     }
 
     this.lastUpdated = +new Date();
     this.move(this.speedX, this.speedY);
+  }
+
+  private updatePosOnPressState() {
+    if (this.pressState === 'left') {
+      this.faceLeft = true;
+      this.speedUp(-0.03);
+    }
+    if (this.pressState === 'right') {
+      this.faceLeft = false;
+      this.speedUp(0.03);
+    }
   }
 }
 
@@ -148,18 +159,29 @@ function clamp(x: number, min: number, max: number) {
 export function addControl(human: Human) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
-      human.move(-0.5, 0);
-      human.speedUp(-0.2);
+      human.pressState = 'left';
     }
     if (e.key === 'ArrowRight') {
-      human.move(0.5, 0);
-      human.speedUp(0.2);
+      human.pressState = 'right';
     }
     e.key === 'ArrowUp' && human.jump();
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      human.pressState = 'none';
+    }
   });
 }
 
 function getDirection(x: number) {
   if (Math.abs(x) < 0.0001) return 0;
   return x < 0 ? -1 : 1;
+}
+
+function absMax(a: number, b: number) {
+  if (Math.abs(a) > Math.abs(b)) {
+    return a;
+  }
+
+  return b;
 }

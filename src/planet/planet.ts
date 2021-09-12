@@ -94,6 +94,7 @@ export class Planet extends Sprite {
     this.tiles = new Tiles(TILE_NUM, r);
     this.height = this.width = this.r * 2;
     this.anchor = 0.5;
+    this.tiles.random();
     this.updateCache();
     getPlanetMaterial().then((v) => {
       Planet.material = v;
@@ -144,11 +145,15 @@ export class Planet extends Sprite {
   }
 
   hasTile(x: number, y: number) {
-    return this.tiles.getTile(x, y).type === TILE_DIRT;
+    const tile = this.tiles.getTile(x, y);
+    if (!tile) {
+      return false;
+    }
+
+    return tile.type !== TILE_EMPTY;
   }
 
   removeTile(x: number, y: number) {
-    console.log('REMOVE');
     this.tiles.setTile(x, y, { type: TILE_EMPTY });
     this.cache.clearCache();
   }
