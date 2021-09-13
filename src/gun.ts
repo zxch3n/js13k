@@ -44,8 +44,8 @@ export class Gun extends ObjectPool<Bullet> implements Attacker {
     bullet.addListener('bulletGG', (event) => {
       const bullet: Bullet = event.target as Bullet;
       bullet.isAlive = false;
-      this.human.planet.removeChild(bullet.sprite);
       this.human.bullets = this.human.bullets.filter((x) => x !== bullet);
+      bullet.destroy();
     });
   }
 }

@@ -75,4 +75,9 @@ export default class Bullet extends GameObject {
     this.lastUpdated = +new Date();
     this.move(this.speed * elapsed);
   }
+
+  destroy() {
+    this.planet.removeChild(this.sprite);
+    this.planet.objects.delete(this);
+  }
 }

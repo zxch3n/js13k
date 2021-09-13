@@ -58,7 +58,7 @@ export default abstract class GameObject {
       // Draw blood bar
       if (this.maxHp != null && this.curHp != null) {
         ctx.save();
-        ctx.translate(0, -sprite.height / 2 - 0.3);
+        ctx.translate(0, -sprite.height / 2 - 0.4);
         const width = Math.min(this.maxHp / 100, 3);
         ctx.translate(-width / 2, 0);
         ctx.fillStyle = '#ccc';
@@ -131,7 +131,7 @@ export default abstract class GameObject {
 
   speedY: number = 0;
   speedX: number = 0;
-  move(x: number, y: number) {
+  move(x: number, y: number, ignoreCollide = false) {
     const localPos = this.localPos;
     let tried = 0;
     let nextX = localPos.x + x;
@@ -142,8 +142,20 @@ export default abstract class GameObject {
       y = absMax(y - getDirection(y) / 10, y / 2);
       nextX = localPos.x + x;
       nextY = localPos.y + y;
-      if (tried++ > 100) {
-        console.error('MAX TRIED');
+      if (tried++ > 20) {
+        return;
+      }
+    }
+
+    while (
+      !ignoreCollide &&
+      this.planet.hasCollide(this, { x: nextX, y: nextY })
+    ) {
+      x = absMax(x - getDirection(x) / 10, x / 2);
+      y = absMax(y - getDirection(y) / 10, y / 2);
+      nextX = localPos.x + x;
+      nextY = localPos.y + y;
+      if (tried++ > 5) {
         return;
       }
     }
@@ -171,6 +183,7 @@ export default abstract class GameObject {
 
   destroy() {
     this.planet.objects.delete(this);
+    console.log('DESTROY');
   }
 }
 

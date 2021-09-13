@@ -62,16 +62,18 @@ export class Zombie extends GameObject implements Life, Attacker {
     this.addListener('zombieDie', (event) => {
       this.die();
     });
+    this.moveSpeed += Math.random() * 0.02 - 0.01;
   }
 
   die() {
     this.isAlive = false;
     this.human.planet.removeChild(this.sprite);
+    this.destroy();
   }
 
   lastJump = Date.now();
   jump() {
-    if (this.getOnGround() && Date.now() - this.lastJump > 2000) {
+    if (this.getOnGround() && Date.now() - this.lastJump > 1000) {
       this.speedY = 0.1;
       this.lastJump = Date.now();
     }
@@ -100,7 +102,9 @@ export class Zombie extends GameObject implements Life, Attacker {
       this.lastChangeDir = time;
       this.changeFaceFrequency = Math.random() * 3000 + 2000;
     }
-    if (distance(this.human.localPos, this.localPos) > this.hatredDistance) {
+
+    const distanceToHuman = distance(this.human.localPos, this.localPos);
+    if (distanceToHuman > this.hatredDistance) {
       if (this.faceLeft) {
         this.move(-this.moveSpeed, this.speedY);
       } else {
@@ -113,16 +117,35 @@ export class Zombie extends GameObject implements Life, Attacker {
         this.planet.hasTile(
           Math.round(this.localPos.x) + getDirection(f),
           this.localPos.y,
-        )
+        ) ||
+        this.planet.hasCollide(this, {
+          x: Math.round(this.localPos.x) + getDirection(f),
+          y: this.localPos.y,
+        })
       ) {
         this.jump();
       }
 
       this.faceLeft = f > 0;
       this.move(this.moveSpeed * getDirection(f), this.speedY);
+      if (distanceToHuman < 1.2) {
+        this.bite();
+      }
     }
     // 判断和人的距离
     // 如果离人远，在附近晃悠
     // 如果离人近，就追
+  }
+
+  lastBite = 0;
+  private bite() {
+    if (Date.now() - this.lastBite < 500) {
+      return;
+    }
+
+    const d = getDirection(this.human.localPos.x - this.localPos.x);
+    this.move(d * 0.1, 0, true);
+    this.lastBite = Date.now();
+    this.human.hurt(5, this.localPos);
   }
 }

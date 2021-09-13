@@ -1,5 +1,5 @@
 import Bullet from './Bullet';
-import GameObject, { Life } from './gameObject';
+import GameObject, { getDirection, Life } from './gameObject';
 import { Gun } from './gun';
 import { HumanMaterial } from './material';
 import { Planet } from './planet/planet';
@@ -79,7 +79,7 @@ export class Human
 
     this.dig(elapsed);
     this.lastUpdated = +new Date();
-    this.move(this.speedX, this.speedY);
+    this.move(this.speedX, this.speedY, true);
   }
 
   private dig(elapsed: number) {
@@ -108,6 +108,12 @@ export class Human
       this.faceLeft = false;
       this.speedUp(0.03);
     }
+  }
+
+  hurt(damage: number, from: LocalPosition) {
+    this.curHp = Math.max(0, this.curHp - damage);
+    const d = getDirection(this.localPos.x - from.x);
+    this.speedX += d * 0.2;
   }
 }
 

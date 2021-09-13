@@ -4,6 +4,7 @@ import { CacheDraw } from '../cacheDraw';
 import GameObject from '../gameObject';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {
+  distance,
   getDrawPos,
   GlobalPosition,
   LocalPosition,
@@ -162,7 +163,25 @@ export class Planet extends Sprite {
       return false;
     }
 
-    return tile.type !== TILE_EMPTY;
+    if (tile.type === TILE_DIRT) {
+      return true;
+    }
+
+    return false;
+  }
+
+  hasCollide(obj: GameObject, nextPos: LocalPosition) {
+    for (const b of this.objects) {
+      if (obj === b) {
+        continue;
+      }
+
+      if (collide(nextPos, b)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   removeTile(x: number, y: number) {
@@ -196,6 +215,13 @@ export class Planet extends Sprite {
       }
     }
   }
+}
+
+function collide(pos: LocalPosition, b: GameObject) {
+  return (
+    Math.round(pos.x) === Math.round(b.localPos.x) &&
+    Math.round(pos.y) === Math.round(b.localPos.y)
+  );
 }
 
 export function getDistancesToCore(r: number, globalScale: number) {
