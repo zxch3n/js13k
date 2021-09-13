@@ -16,7 +16,7 @@ import { Tile, Tiles, TILE_DIRT, TILE_EMPTY } from './tiles';
 /**
  * 多少比例是地心
  */
-export const CORE_RATE = 0.5;
+export const CORE_RATE = 0.4;
 
 /**
  * 缩很小的时候不知道会不会影响
@@ -32,6 +32,7 @@ export class Planet extends Sprite {
   private atmosphere = new Atmosphere(this);
   private light = new Light(this);
   tiles: Tiles;
+  coreR: number;
 
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
@@ -79,6 +80,11 @@ export class Planet extends Sprite {
           ctx.drawImage(Planet.material, 0, 0);
         }
       }
+      // draw core tile shadow
+      if (local.y <= this.coreR) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(0, 0, 32, 32);
+      }
       ctx.restore();
     }
 
@@ -94,6 +100,7 @@ export class Planet extends Sprite {
     super((ctx: CanvasRenderingContext2D) => {});
     this.pos = pos;
     this.r = r;
+    this.coreR = Math.floor(r * CORE_RATE);
     this.tiles = new Tiles(TILE_NUM, r);
     this.height = this.width = this.r * 2;
     this.anchor = 0.5;
@@ -157,6 +164,10 @@ export class Planet extends Sprite {
   }
 
   removeTile(x: number, y: number) {
+    if (Math.round(y) <= this.coreR) {
+      return;
+    }
+
     this.tiles.setTile(x, y, { type: TILE_EMPTY });
     this.cache.clearCache();
   }
