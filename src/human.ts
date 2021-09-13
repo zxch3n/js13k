@@ -125,7 +125,7 @@ function clamp(x: number, min: number, max: number) {
 }
 
 export function addControl(human: Human) {
-  document.addEventListener('keydown', (e) => {
+  const onKeydown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft') {
       human.pressState = 'left';
     }
@@ -140,13 +140,19 @@ export function addControl(human: Human) {
     if (e.key === 'c') {
       human.gun.fire();
     }
-  });
-  document.addEventListener('keyup', (e) => {
+  };
+  const onKeyup = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       human.pressState = 'none';
     }
     if (e.key === 'ArrowDown') {
       human.isDigging = false;
     }
-  });
+  };
+  document.addEventListener('keydown', onKeydown);
+  document.addEventListener('keyup', onKeyup);
+  return () => {
+    document.removeEventListener('keydown', onKeydown);
+    document.removeEventListener('keyup', onKeydown);
+  };
 }
