@@ -7,3 +7,19 @@
 [**Play online**](https://js13k.vercel.app/)
 
 Only 13KB. Entry for [JS13K 2021](https://js13kgames.com/).
+
+# Build
+
+```
+yarn dist
+```
+
+# Testing
+
+```bash
+yarn storybook
+# or
+yarn watch
+cd dist
+npx live-server
+```
