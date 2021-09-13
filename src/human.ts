@@ -30,36 +30,13 @@ export class Human
   pressState: 'left' | 'right' | 'none' = 'none';
   private diggingState: number = 0;
   isDigging = false;
-  sprite: Sprite = new Sprite((ctx) => {
-    ctx.save();
-    ctx.fillStyle = 'red';
-    ctx.rotate(xToRadian(this.localPos.x));
-    const material = this.sprite.material;
-    if (material) {
-      if (this.faceLeft) {
-        ctx.scale(-1, 1);
-      }
-      const scale = this.localPos.y / this.planet.r;
-      ctx.translate(0, this.sprite.height + this.sprite.height / 12);
-      ctx.scale(scale, scale);
-      ctx.drawImage(
-        material,
-        -this.sprite.width / 2,
-        -this.sprite.height / 2,
-        this.sprite.width,
-        this.sprite.height,
-      );
-    } else {
-      ctx.fillRect(-1, -2, 1, 2);
-    }
-    ctx.restore();
-  });
+  sprite: Sprite;
   bullets: Bullet[] = [];
   gun = new Gun(this);
 
   planet: Planet;
   constructor(planet: Planet) {
-    super();
+    super(planet);
     this.planet = planet;
     this.sprite = this.buildSprite(HumanMaterial);
     planet.addChild(this.sprite);

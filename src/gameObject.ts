@@ -1,3 +1,4 @@
+import { Planet } from './planet/planet';
 import { LocalPosition, toGlobal, xToRadian } from './position';
 import { Sprite } from './sprite';
 export default abstract class GameObject {
@@ -5,14 +6,16 @@ export default abstract class GameObject {
   faceLeft: boolean = false;
   isAlive = true; // if !isAlive Don't render
   listeners: { [event: string]: { (event: GEvent): void }[] } = { all: [] };
+  planet?: Planet;
 
   protected lastUpdated = +new Date();
 
-  protected constructor() {
+  protected constructor(planet?: Planet) {
     this.sprite = this.buildSprite();
+    this.planet = planet;
   }
 
-  buildSprite(material?: Promise<HTMLCanvasElement>){
+  buildSprite(material?: Promise<HTMLCanvasElement>) {
     const sprite = new Sprite((ctx) => {
       /**
        * FIXME: 目前没对应到脚站的地方
@@ -25,6 +28,9 @@ export default abstract class GameObject {
         if (this.faceLeft) {
           ctx.scale(-1, 1);
         }
+        const scale = this.localPos.y / (this.planet?.r || 50);
+        ctx.translate(0, this.sprite.height + this.sprite.height / 12);
+        ctx.scale(scale, scale);
         ctx.drawImage(
           material,
           -this.sprite.width / 2,
@@ -39,7 +45,7 @@ export default abstract class GameObject {
       this.update();
     });
     if (material) sprite.setMaterial(material);
-    return sprite
+    return sprite;
   }
 
   addListener(eventName: string, listener: { (event: GEvent): void }): void {
@@ -74,11 +80,7 @@ export class GEvent {
   public target?: GameObject;
   public extra?: Object;
 
-  constructor(
-    eventName: string,
-    target?: GameObject,
-    extra?: Object,
-  ) {
+  constructor(eventName: string, target?: GameObject, extra?: Object) {
     this.eventName = eventName;
     this.target = target;
     this.extra = extra;
@@ -115,9 +117,9 @@ export interface Life {
   curHp: number;
 }
 
-export interface Attacker{
+export interface Attacker {
   damage: number;
   attackDistance: number;
   attackInterval: number;
-  lastFireTime:number;
+  lastFireTime: number;
 }
