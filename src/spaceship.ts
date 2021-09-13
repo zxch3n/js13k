@@ -18,7 +18,7 @@ export class Spaceship extends GameObject implements CameraTarget {
     this.sprite.anchor = 0.5;
     planet.addChild(this.sprite);
     this.localPos = { x: Math.floor(Math.random() * TILE_NUM), y: 24 };
-    // this.localPos = { x: 0, y: 24 };
+    this.localPos = { x: 0, y: 24 };
     this.addListener('found', () => {
       const originPos = { ...this.localPos };
       const startTime = Date.now();

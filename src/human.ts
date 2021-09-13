@@ -110,11 +110,13 @@ export class Human
   private updatePosOnPressState() {
     if (this.pressState === 'left') {
       this.faceLeft = true;
-      this.speedUp(-0.03);
+      this.speedUp(-0.01);
+      this.move(-0.1, 0);
     }
     if (this.pressState === 'right') {
       this.faceLeft = false;
-      this.speedUp(0.03);
+      this.speedUp(0.01);
+      this.move(0.1, 0);
     }
   }
 

@@ -40,6 +40,13 @@ export default class Bullet extends GameObject {
     const localPos = this.localPos;
     this.localPos = { ...localPos, x: localPos.x + x };
     this.flewDistance += Math.abs(x);
+    if (this.planet.hasTile(this.localPos.x, this.localPos.y)) {
+      this.planet.removeTile(
+        Math.round(this.localPos.x),
+        Math.round(this.localPos.y),
+      );
+      this.destroy();
+    }
   }
 
   hit(target: Zombie) {
