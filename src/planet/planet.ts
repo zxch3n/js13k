@@ -1,6 +1,7 @@
 import { Atmosphere } from '../atmosphere/atmosphere';
 import { Light } from '../atmosphere/light';
 import { CacheDraw } from '../cacheDraw';
+import GameObject from '../gameObject';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {
   getDrawPos,
@@ -33,6 +34,7 @@ export class Planet extends Sprite {
   private light = new Light(this);
   tiles: Tiles;
   coreR: number;
+  objects: Set<GameObject> = new Set();
 
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;

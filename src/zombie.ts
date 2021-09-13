@@ -1,16 +1,14 @@
 import GameObject, {
-  absMax,
   Attacker,
   getDirection,
-  GEvent,
   Life,
   ObjectPool,
 } from './gameObject';
 import { Human } from './human';
-import { Sprite } from './sprite';
-import { distance, Position, TILE_NUM, toGlobal, xToRadian } from './position';
 import { ZombieMaterial } from './material';
 import { Planet } from './planet/planet';
+import { distance } from './position';
+import { Sprite } from './sprite';
 
 const ALPHA = 0.1;
 export default class ZombieSpawn extends ObjectPool<Zombie> {
@@ -71,6 +69,14 @@ export class Zombie extends GameObject implements Life, Attacker {
     this.human.planet.removeChild(this.sprite);
   }
 
+  lastJump = Date.now();
+  jump() {
+    if (this.getOnGround() && Date.now() - this.lastJump > 2000) {
+      this.speedY = 0.1;
+      this.lastJump = Date.now();
+    }
+  }
+
   speedY = 0;
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60): void {
     if (!this.isAlive) return;
@@ -102,11 +108,18 @@ export class Zombie extends GameObject implements Life, Attacker {
       }
     } else {
       const f = this.human.localPos.x - this.localPos.x;
-      if (f > 0) {
-        this.move(this.moveSpeed, this.speedY);
-      } else {
-        this.move(-this.moveSpeed, this.speedY);
+      // try to jump if facing obstacle
+      if (
+        this.planet.hasTile(
+          Math.round(this.localPos.x) + getDirection(f),
+          this.localPos.y,
+        )
+      ) {
+        this.jump();
       }
+
+      this.faceLeft = f > 0;
+      this.move(this.moveSpeed * getDirection(f), this.speedY);
     }
     // 判断和人的距离
     // 如果离人远，在附近晃悠

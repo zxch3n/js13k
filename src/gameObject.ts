@@ -16,12 +16,15 @@ export default abstract class GameObject {
   isAlive = true; // if !isAlive Don't render
   listeners: { [event: string]: { (event: GEvent): void }[] } = { all: [] };
   planet: Planet;
+  maxHp?: number;
+  curHp?: number;
 
   protected lastUpdated = +new Date();
 
   protected constructor(planet: Planet) {
     this.sprite = this.buildSprite();
     this.planet = planet;
+    this.planet.objects.add(this);
   }
 
   getOnGround(pos = this.localPos) {
@@ -30,9 +33,6 @@ export default abstract class GameObject {
 
   buildSprite(material?: Promise<HTMLCanvasElement>) {
     const sprite = new Sprite((ctx) => {
-      /**
-       * FIXME: 目前没对应到脚站的地方
-       */
       ctx.save();
       ctx.fillStyle = 'red';
       ctx.rotate(xToRadian(this.localPos.x));
@@ -46,14 +46,28 @@ export default abstract class GameObject {
         ctx.scale(scale, scale);
         ctx.drawImage(
           material,
-          -this.sprite.width / 2,
-          -this.sprite.height / 2,
-          this.sprite.width,
-          this.sprite.height,
+          -sprite.width / 2,
+          -sprite.height / 2,
+          sprite.width,
+          sprite.height,
         );
       } else {
         ctx.fillRect(-1, -2, 1, 2);
       }
+
+      // Draw blood bar
+      if (this.maxHp != null && this.curHp != null) {
+        ctx.save();
+        ctx.translate(0, -sprite.height / 2 - 0.3);
+        const width = Math.min(this.maxHp / 100, 3);
+        ctx.translate(-width / 2, 0);
+        ctx.fillStyle = '#ccc';
+        ctx.fillRect(0, 0, width, 0.1);
+        ctx.fillStyle = '#f33';
+        ctx.fillRect(0, 0, (width * this.curHp) / this.maxHp, 0.1);
+        ctx.restore();
+      }
+
       ctx.restore();
       this.update();
     });
@@ -154,6 +168,10 @@ export default abstract class GameObject {
   }
 
   abstract update(): void;
+
+  destroy() {
+    this.planet.objects.delete(this);
+  }
 }
 
 export class GEvent {

@@ -1,17 +1,9 @@
 import Bullet from './Bullet';
-import GameObject, { absMax, getDirection, Life } from './gameObject';
+import GameObject, { Life } from './gameObject';
 import { Gun } from './gun';
 import { HumanMaterial } from './material';
 import { Planet } from './planet/planet';
-import {
-  getDrawPos,
-  LocalPosition,
-  PIXEL_TO_GLOBAL_COORDINATE,
-  Position,
-  TILE_NUM,
-  toGlobal,
-  xToRadian,
-} from './position';
+import { LocalPosition, Position, xToRadian } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget, LightSource } from './type';
 

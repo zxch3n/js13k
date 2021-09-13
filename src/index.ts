@@ -3,6 +3,7 @@ import { addControl, Human } from './human';
 import { getPlanetMaterial } from './material';
 import { Planet } from './planet/planet';
 import { Stage } from './stage';
+import ZombieSpawn from './zombie';
 
 export default {
   title: 'Game/Human',
@@ -33,6 +34,7 @@ canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
 const human = new Human(planet);
+const zombieSpawn = new ZombieSpawn(human, planet);
 stage.camera.focus(human);
 stage.addChild(planet);
 getPlanetMaterial().then(() => {
