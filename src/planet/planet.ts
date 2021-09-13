@@ -36,6 +36,7 @@ export class Planet extends Sprite {
   tiles: Tiles;
   coreR: number;
   objects: Set<GameObject> = new Set();
+  cacheType?: 'small' | 'large';
 
   private drawPlanetOnCache = (ctx: CanvasRenderingContext2D) => {
     const globalScale = this.cameraScale;
@@ -126,6 +127,10 @@ export class Planet extends Sprite {
   private updateCache() {
     this.atmosphere.updateCache();
     this.light.updateCache();
+    if (this.cameraScale >= 16 && this.cacheType !== 'large') {
+      this.cacheType = 'large';
+      this.cache.clearCache();
+    }
     this.cache.setSize(this.width + 100, this.height + 100);
     this.cache.setScale(this.cameraScale);
     this.cache.rotate = this.rotate;

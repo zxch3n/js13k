@@ -114,6 +114,9 @@ export class Human
     this.curHp = Math.max(0, this.curHp - damage);
     const d = getDirection(this.localPos.x - from.x);
     this.speedX += d * 0.2;
+    if (this.curHp === 0) {
+      this.emit({ eventName: 'die' });
+    }
   }
 }
 
