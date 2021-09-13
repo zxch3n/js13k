@@ -5,6 +5,8 @@ import { TILE_DIRT } from './planet/tiles';
 import { Stage } from './stage';
 import ZombieSpawn from './zombie';
 
+let bestScore = parseInt(localStorage.getItem('bestScore') || '0');
+
 export class Game {
   end: boolean = false;
   canvas: HTMLCanvasElement;
@@ -40,6 +42,10 @@ export class Game {
     this.gc.push(addControl(this.human));
     this.human.addListener('die', () => {
       this.end = true;
+      bestScore = parseInt(localStorage.getItem('bestScore') || '0');
+      if (this.score > bestScore) {
+        localStorage.setItem('bestScore', this.score.toString());
+      }
     });
 
     document.addEventListener('keydown', this.keydown);
@@ -79,6 +85,7 @@ export class Game {
       ctx.fillStyle = '#fff';
       ctx.font = '16px serif';
       ctx.fillText(`Score: ${this.score}`, 12, 20);
+      ctx.fillText(`Best Score: ${bestScore}`, 12, 40);
 
       ctx.fillText(
         `Move ↑←→     Dig ↓     Pile Space      Attack c`,
