@@ -1,5 +1,5 @@
 import { Planet } from '../planet/planet';
-import { LocalPosition, toGlobal } from '../position';
+import { getDrawPos, LocalPosition, toGlobal } from '../position';
 import { LightSource } from '../type';
 import { paint } from './paint';
 
@@ -74,7 +74,12 @@ export class Light {
   clearShadow(pos: LocalPosition, r: number) {
     r *= this.planet.cameraScale / this.getSizeRate();
     const gPos = toGlobal(
-      { x: pos.x, y: (pos.y * this.planet.cameraScale) / this.getSizeRate() },
+      {
+        x: pos.x,
+        y:
+          (getDrawPos(pos.y, this.planet.r) * this.planet.cameraScale) /
+          this.getSizeRate(),
+      },
       {
         x: this.canvas.width / 2,
         y: this.canvas.height / 2,

@@ -18,6 +18,8 @@ export class Human implements CameraTarget, LightSource {
   speedY: number = 0;
   speedX: number = 0;
   pressState: 'left' | 'right' | 'none' = 'none';
+  private diggingState: number = 0;
+  isDigging = false;
   sprite: Sprite = new Sprite((ctx) => {
     ctx.save();
     ctx.fillStyle = 'red';
@@ -173,8 +175,27 @@ export class Human implements CameraTarget, LightSource {
       this.speedX = this.speedX * 0.9;
     }
 
+    this.dig(elapsed);
     this.lastUpdated = +new Date();
     this.move(this.speedX, this.speedY);
+  }
+
+  private dig(elapsed: number) {
+    if (!this.isDigging) {
+      return;
+    }
+
+    if (!this.getOnGround()) {
+      this.diggingState = 0;
+      return;
+    }
+
+    this.diggingState += elapsed;
+    if (this.diggingState >= 1) {
+      console.log('dig');
+      this.diggingState = 0;
+      this.planet.removeTile(Math.round(this.localPos.x), this.localPos.y - 1);
+    }
   }
 
   private updatePosOnPressState() {
@@ -201,11 +222,18 @@ export function addControl(human: Human) {
     if (e.key === 'ArrowRight') {
       human.pressState = 'right';
     }
+    if (e.key === 'ArrowDown') {
+      human.isDigging = true;
+    }
+
     e.key === 'ArrowUp' && human.jump();
   });
   document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       human.pressState = 'none';
+    }
+    if (e.key === 'ArrowDown') {
+      human.isDigging = false;
     }
   });
 }

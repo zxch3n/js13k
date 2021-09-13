@@ -39,7 +39,6 @@ export class Planet extends Sprite {
     ctx.scale(globalScale, globalScale);
     let minTranslateX = this.r;
     let minY = Infinity;
-    let size = 0;
     // 依赖 tilePositions 中 y 是递减的
     for (const local of this.tilePositions(globalScale)) {
       if (local.type === TILE_EMPTY) {
@@ -48,7 +47,10 @@ export class Planet extends Sprite {
 
       ctx.save();
       ctx.rotate(xToRadian(local.x) - Math.PI / 2);
-      size = (this.TILE_SIZE * local.y) / this.r / globalScale;
+      let size = (this.TILE_SIZE * local.y) / this.r / globalScale;
+      if (size < 0.6) {
+        size = 0.6;
+      }
       const scale = size / 32;
       let translateX: number = getDrawPos(local.y, this.r) - 1; // TODO: why;
       if (globalScale < 16) {
@@ -61,14 +63,13 @@ export class Planet extends Sprite {
         }
       }
       ctx.translate(translateX - size / 2, -size / 2);
+      ctx.scale(scale, scale);
       if (!Planet.material) {
-        ctx.scale(scale, scale);
         ctx.fillStyle = `rgba(${
           (Math.cos(local.x) * local.x * local.y * 929) % 255
         }, ${(local.y * local.y * 263) % 255}, 0, 1)`;
         ctx.fillRect(0, 0, 32, 32);
       } else {
-        ctx.scale(scale, scale);
         ctx.translate(16, 16);
         ctx.rotate(Math.PI / 2);
         ctx.translate(-16, -16);
@@ -166,7 +167,7 @@ export class Planet extends Sprite {
     LocalPosition & { toSurface: number; isSurface: boolean } & Tile
   > {
     const step = Math.max(this.TILE_SIZE / Math.max(scale, 1), 1);
-    for (let y = this.r; y > Math.max(this.r * CORE_RATE, 0); y -= step) {
+    for (let y = this.r; y >= 0; y -= step) {
       for (let x = 0; x < TILE_NUM; x += step) {
         const tile = this.tiles.getTile(x, y);
         const toSurface = this.tiles.getDistanceToSurface(x, y);
