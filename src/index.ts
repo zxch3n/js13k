@@ -7,8 +7,11 @@ interface Props {
 }
 
 const canvas = document.createElement('canvas');
-canvas.width = 800;
-canvas.height = 600;
+document.body.style.height = '100vh';
+document.body.style.width = '100vw';
+document.body.style.margin = '0';
+canvas.width = Math.max(document.body.clientWidth, 400);
+canvas.height = Math.max(document.body.clientHeight, 400);
 const game = new Game(canvas);
 game.start();
 document.body.appendChild(canvas);

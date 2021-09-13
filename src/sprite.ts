@@ -106,6 +106,14 @@ export class Sprite {
     ctx.translate(this.pos.x, this.pos.y);
     ctx.scale(this.scale, this.scale);
   }
+
+  destroy() {
+    this.parent = undefined;
+    this.children.forEach((x) => x.destroy());
+    this.children.length = 0;
+    this.material = undefined;
+    this._draw = undefined;
+  }
 }
 
 function rotate(pos: GlobalPosition, angle: number): GlobalPosition {

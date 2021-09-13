@@ -28,7 +28,6 @@ export class Game {
     this.zombieSpawn = zombieSpawn;
     zombieSpawn.addZombieDieListener(() => {
       this.score += 10;
-      console.log(this.score);
     });
     stage.camera.focus(human);
     stage.addChild(planet);
@@ -80,6 +79,12 @@ export class Game {
       ctx.fillStyle = '#fff';
       ctx.font = '16px serif';
       ctx.fillText(`Score: ${this.score}`, 12, 20);
+
+      ctx.fillText(
+        `Move ↑←→     Dig ↓     Pile Space      Attack c`,
+        this.canvas.width - 320,
+        this.canvas.height - 20,
+      );
     }
   }
 
@@ -113,7 +118,6 @@ export class Game {
     this.zombieSpawn = zombieSpawn;
     zombieSpawn.addZombieDieListener(() => {
       this.score += 10;
-      console.log(this.score);
     });
     stage.camera.focus(human);
     stage.addChild(planet);

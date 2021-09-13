@@ -69,6 +69,14 @@ export class Human
     this.speedY = 0.4;
   }
 
+  pile() {
+    if (this.getOnGround()) {
+      this.planet.addTile(Math.round(this.localPos.x), this.localPos.y);
+      this.move(0, 1);
+      this.speedY = 0.1;
+    }
+  }
+
   /**
    * refresh every frame
    * @param elapsed
@@ -129,11 +137,17 @@ export function addControl(human: Human) {
     if (e.key === 'ArrowLeft') {
       human.pressState = 'left';
     }
+
     if (e.key === 'ArrowRight') {
       human.pressState = 'right';
     }
+
     if (e.key === 'ArrowDown') {
       human.isDigging = true;
+    }
+
+    if (e.key === ' ') {
+      human.pile();
     }
 
     e.key === 'ArrowUp' && human.jump();

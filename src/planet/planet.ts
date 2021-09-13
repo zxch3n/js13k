@@ -189,6 +189,15 @@ export class Planet extends Sprite {
     return false;
   }
 
+  addTile(x: number, y: number) {
+    if (Math.round(y) <= this.coreR) {
+      return;
+    }
+
+    this.tiles.setTile(x, y, { type: TILE_DIRT });
+    this.cache.clearCache();
+  }
+
   removeTile(x: number, y: number) {
     if (Math.round(y) <= this.coreR) {
       return;
