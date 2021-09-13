@@ -1,5 +1,5 @@
 import Bullet from './Bullet';
-import GameObject, { Life } from './gameObject';
+import GameObject, { absMax, getDirection, Life } from './gameObject';
 import { Gun } from './gun';
 import { HumanMaterial } from './material';
 import { Planet } from './planet/planet';
@@ -42,30 +42,6 @@ export class Human
     planet.addChild(this.sprite);
     planet.addLightSource(this);
     this.localPos = { x: 0, y: this.planet.r + 1 };
-    const sprite = this.sprite;
-    this.sprite.draw = (ctx) => {
-      this.update();
-      if (sprite.material) {
-        if (sprite.width * sprite.height === 0) {
-          sprite.width = sprite.material.width / PIXEL_TO_GLOBAL_COORDINATE;
-          sprite.height = sprite.material.height / PIXEL_TO_GLOBAL_COORDINATE;
-        }
-      }
-      ctx.save();
-      {
-        ctx.translate(0, 1); // TODO: why?
-        const radius = xToRadian(this.planetPos.x);
-        ctx.rotate(radius);
-        const translate = getDrawPos(this.planetPos.y, this.planet.r);
-        ctx.translate(0, -translate);
-        ctx.rotate(-radius);
-        ctx.scale(sprite.scale, sprite.scale);
-        ctx.translate(0, -sprite.height);
-        sprite._draw && sprite._draw(ctx);
-        sprite.children.forEach((x) => x.draw(ctx));
-      }
-      ctx.restore();
-    };
   }
 
   getLightPos(): LocalPosition {
@@ -120,26 +96,6 @@ export class Human
 
   speedUp(x: number) {
     this.speedX = clamp(this.speedX + x, -MAX_MOVE_SPEED, MAX_MOVE_SPEED);
-  }
-
-  /**
-   * 对应脚站的地方
-   */
-  private planetPos: LocalPosition = { x: 0, y: 0 };
-  get localPos() {
-    return this.planetPos;
-  }
-
-  set localPos(pos: LocalPosition) {
-    this.planetPos = pos;
-    this.sprite.pos = toGlobal({
-      x: pos.x,
-      y: getDrawPos(pos.y, this.planet.r) - 1,
-    });
-  }
-
-  getOnGround(pos = this.localPos) {
-    return this.planet.hasTile(pos.x, pos.y - 1);
   }
 
   jump() {
@@ -228,17 +184,4 @@ export function addControl(human: Human) {
       human.isDigging = false;
     }
   });
-}
-
-function getDirection(x: number) {
-  if (Math.abs(x) < 0.0001) return 0;
-  return x < 0 ? -1 : 1;
-}
-
-function absMax(a: number, b: number) {
-  if (Math.abs(a) > Math.abs(b)) {
-    return a;
-  }
-
-  return b;
 }

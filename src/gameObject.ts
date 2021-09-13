@@ -1,18 +1,28 @@
 import { Planet } from './planet/planet';
-import { LocalPosition, toGlobal, xToRadian } from './position';
+import {
+  getDrawPos,
+  LocalPosition,
+  PIXEL_TO_GLOBAL_COORDINATE,
+  toGlobal,
+  xToRadian,
+} from './position';
 import { Sprite } from './sprite';
 export default abstract class GameObject {
   sprite: Sprite;
   faceLeft: boolean = false;
   isAlive = true; // if !isAlive Don't render
   listeners: { [event: string]: { (event: GEvent): void }[] } = { all: [] };
-  planet?: Planet;
+  planet: Planet;
 
   protected lastUpdated = +new Date();
 
-  protected constructor(planet?: Planet) {
+  protected constructor(planet: Planet) {
     this.sprite = this.buildSprite();
     this.planet = planet;
+  }
+
+  getOnGround(pos = this.localPos) {
+    return this.planet.hasTile(pos.x, pos.y - 1);
   }
 
   buildSprite(material?: Promise<HTMLCanvasElement>) {
@@ -45,6 +55,29 @@ export default abstract class GameObject {
       this.update();
     });
     if (material) sprite.setMaterial(material);
+    sprite.draw = (ctx) => {
+      this.update();
+      if (sprite.material) {
+        if (sprite.width * sprite.height === 0) {
+          sprite.width = sprite.material.width / PIXEL_TO_GLOBAL_COORDINATE;
+          sprite.height = sprite.material.height / PIXEL_TO_GLOBAL_COORDINATE;
+        }
+      }
+      ctx.save();
+      {
+        ctx.translate(0, 1); // TODO: why?
+        const radius = xToRadian(this.planetPos.x);
+        ctx.rotate(radius);
+        const translate = getDrawPos(this.planetPos.y, this.planet.r);
+        ctx.translate(0, -translate);
+        ctx.rotate(-radius);
+        ctx.scale(sprite.scale, sprite.scale);
+        ctx.translate(0, -sprite.height);
+        sprite._draw && sprite._draw(ctx);
+        sprite.children.forEach((x) => x.draw(ctx));
+      }
+      ctx.restore();
+    };
     return sprite;
   }
 
@@ -63,13 +96,20 @@ export default abstract class GameObject {
       }
     }
   }
-
+  /**
+   * 对应脚站的地方
+   */
+  private planetPos: LocalPosition = { x: 0, y: 0 };
   get localPos() {
-    return this.sprite!.localPos();
+    return this.planetPos;
   }
 
   set localPos(pos: LocalPosition) {
-    this.sprite!.pos = toGlobal(pos);
+    this.planetPos = pos;
+    this.sprite.pos = toGlobal({
+      x: pos.x,
+      y: getDrawPos(pos.y, this.planet.r) - 1,
+    });
   }
 
   abstract update(): void;
@@ -122,4 +162,17 @@ export interface Attacker {
   attackDistance: number;
   attackInterval: number;
   lastFireTime: number;
+}
+
+export function getDirection(x: number) {
+  if (Math.abs(x) < 0.0001) return 0;
+  return x < 0 ? -1 : 1;
+}
+
+export function absMax(a: number, b: number) {
+  if (Math.abs(a) > Math.abs(b)) {
+    return a;
+  }
+
+  return b;
 }
