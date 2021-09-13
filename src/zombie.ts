@@ -12,7 +12,7 @@ import { Sprite } from './sprite';
 
 const ALPHA = 0.1;
 export default class ZombieSpawn extends ObjectPool<Zombie> {
-  maxZombieNum = 10;
+  maxZombieNum = 20;
   human: Human;
   planet: Planet;
   zombies: Zombie[] = [];
@@ -33,8 +33,16 @@ export default class ZombieSpawn extends ObjectPool<Zombie> {
         zombie.isAlive = true;
         this.planet.addChild(zombie.sprite);
         this.zombies.push(zombie);
+        zombie.addListener('zombieDie', () => {
+          this.callbacks.forEach((fn) => fn());
+        });
       });
     }, 3000);
+  }
+
+  private callbacks: (() => void)[] = [];
+  addZombieDieListener(fn: () => void) {
+    this.callbacks.push(fn);
   }
 }
 
