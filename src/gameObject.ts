@@ -3,10 +3,13 @@ import {
   getDrawPos,
   LocalPosition,
   PIXEL_TO_GLOBAL_COORDINATE,
+  TILE_NUM,
   toGlobal,
   xToRadian,
 } from './position';
 import { Sprite } from './sprite';
+
+const ALPHA = 0.1;
 export default abstract class GameObject {
   sprite: Sprite;
   faceLeft: boolean = false;
@@ -110,6 +113,44 @@ export default abstract class GameObject {
       x: pos.x,
       y: getDrawPos(pos.y, this.planet.r) - 1,
     });
+  }
+
+  speedY: number = 0;
+  speedX: number = 0;
+  move(x: number, y: number) {
+    const localPos = this.localPos;
+    let tried = 0;
+    let nextX = localPos.x + x;
+    let nextY = localPos.y + y;
+    while (this.planet.hasTile(nextX, nextY)) {
+      this.speedX = 0;
+      x = absMax(x - getDirection(x) / 10, x / 2);
+      y = absMax(y - getDirection(y) / 10, y / 2);
+      nextX = localPos.x + x;
+      nextY = localPos.y + y;
+      if (tried++ > 100) {
+        console.error('MAX TRIED');
+        return;
+      }
+    }
+
+    const pos = { x: nextX % TILE_NUM, y: nextY };
+    if (y < 0 && this.getOnGround(pos)) {
+      pos.y = Math.round(pos.y);
+      this.speedY = 0;
+    }
+
+    this.localPos = pos;
+  }
+
+  gravity(elapsed: number) {
+    if (this.speedY > -4 && !this.getOnGround()) {
+      this.speedY = Math.max(this.speedY - ALPHA * elapsed, -4);
+    }
+
+    if (this.getOnGround()) {
+      this.speedX = this.speedX * 0.9;
+    }
   }
 
   abstract update(): void;

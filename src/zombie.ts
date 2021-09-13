@@ -71,43 +71,12 @@ export class Zombie extends GameObject implements Life, Attacker {
     this.human.planet.removeChild(this.sprite);
   }
 
-  move(x: number, y: number) {
-    this.faceLeft = x > 0;
-    const localPos = this.localPos;
-    let tried = 0;
-    let nextX = localPos.x + x;
-    let nextY = localPos.y + y;
-    while (this.planet.hasTile(nextX, nextY)) {
-      x = absMax(x - getDirection(x) / 10, x / 2);
-      y = absMax(y - getDirection(y) / 10, y / 2);
-      nextX = localPos.x + x;
-      nextY = localPos.y + y;
-      if (tried++ > 100) {
-        console.error('MAX TRIED');
-        return;
-      }
-    }
-
-    const pos = { x: nextX % TILE_NUM, y: nextY };
-    if (y < 0 && this.getOnGround(pos)) {
-      pos.y = Math.round(pos.y);
-      this.speedY = 0;
-    }
-
-    this.localPos = pos;
-  }
-
   speedY = 0;
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60): void {
     if (!this.isAlive) return;
-    if (this.getOnGround()) {
-      this.speedY = 0;
-    } else if (this.speedY > -4) {
-      this.speedY = Math.max(this.speedY - ALPHA * elapsed, -4);
-    }
+    this.gravity(elapsed);
 
     this.lastUpdated = +new Date();
-    console.log(this.speedY);
     // 判断和子弹的碰撞
     for (const bullet of this.human.bullets) {
       if (distance(bullet.localPos, this.localPos) > 1) {
