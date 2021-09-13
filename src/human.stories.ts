@@ -37,6 +37,9 @@ planet.tiles.setTile(0, 50, { type: TILE_DIRT });
 planet.removeTile(0, 49);
 planet.removeTile(0, 48);
 planet.removeTile(0, 47);
+for (let i = 50; i > 30; i--) {
+  planet.removeTile(-1, i);
+}
 const human = new Human(planet);
 human.setMaterial(HumanMaterial);
 stage.camera.focus(human);

@@ -19,6 +19,8 @@ export class Stage extends Sprite {
     this.ctx.resetTransform();
     this.ctx.fillStyle = 'black';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.camera.width = this.canvas.width;
+    this.camera.height = this.canvas.height;
     this.camera.draw(this.ctx, super.draw.bind(this));
   }
 

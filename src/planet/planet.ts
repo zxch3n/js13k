@@ -96,7 +96,7 @@ export class Planet extends Sprite {
     this.tiles = new Tiles(TILE_NUM, r);
     this.height = this.width = this.r * 2;
     this.anchor = 0.5;
-    this.tiles.random();
+    // this.tiles.random();
     this.updateCache();
     getPlanetMaterial().then((v) => {
       Planet.material = v;

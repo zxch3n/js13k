@@ -1,10 +1,10 @@
-import { range } from './atmosphere/range';
 import { Planet } from './planet/planet';
 import {
   getDrawPos,
   LocalPosition,
   PIXEL_TO_GLOBAL_COORDINATE,
   Position,
+  TILE_NUM,
   toGlobal,
   xToRadian,
 } from './position';
@@ -87,6 +87,10 @@ export class Human implements CameraTarget, LightSource {
     this.sprite.material = await material;
   }
 
+  getCameraZoom(): number {
+    return this.planet.r / this.localPos.y;
+  }
+
   getCameraPos(): Position {
     return this.sprite.getStagePos();
   }
@@ -112,7 +116,7 @@ export class Human implements CameraTarget, LightSource {
       }
     }
 
-    const pos = { x: nextX, y: nextY };
+    const pos = { x: nextX % TILE_NUM, y: nextY };
     if (y < 0 && this.getOnGround(pos)) {
       pos.y = Math.round(pos.y);
       this.speedY = 0;
@@ -135,7 +139,10 @@ export class Human implements CameraTarget, LightSource {
 
   set localPos(pos: LocalPosition) {
     this.planetPos = pos;
-    this.sprite.pos = toGlobal(pos);
+    this.sprite.pos = toGlobal({
+      x: pos.x,
+      y: getDrawPos(pos.y, this.planet.r) - 1,
+    });
   }
 
   getOnGround(pos = this.localPos) {
