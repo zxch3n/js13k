@@ -26,6 +26,10 @@ export class Sprite {
     this._draw = _draw;
   }
 
+  async setMaterial(material: Promise<HTMLCanvasElement>) {
+    this.material = await material;
+  }
+
   get cameraScale(): number {
     return this.scale * (this.parent ? this.parent.cameraScale : 1);
   }

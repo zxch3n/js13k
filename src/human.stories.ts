@@ -2,8 +2,9 @@ import { Story, Meta } from '@storybook/html';
 import { addControl, Human } from './human';
 import { Stage } from './stage';
 import { Planet } from './planet/planet';
-import { getPlanetMaterial, HumanMaterial } from './material';
+import { getPlanetMaterial } from './material';
 import { TILE_DIRT } from './planet/tiles';
+import ZombieSpawn from './zombie';
 
 export default {
   title: 'Game/Human',
@@ -41,11 +42,14 @@ for (let i = 50; i > 30; i--) {
   planet.removeTile(-1, i);
 }
 const human = new Human(planet);
-human.setMaterial(HumanMaterial);
+const zombieSpawn = new ZombieSpawn(human, planet);
+// human.setMaterial(HumanMaterial);
 stage.camera.focus(human);
 stage.addChild(planet);
 getPlanetMaterial().then(() => {
-  requestAnimationFrame(() => stage.draw());
+  requestAnimationFrame(() => {
+    stage.draw();
+  });
 });
 
 (window as any).camera = stage.camera;

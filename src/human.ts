@@ -1,3 +1,7 @@
+import Bullet from './Bullet';
+import GameObject, { Life } from './gameObject';
+import { Gun } from './gun';
+import { HumanMaterial } from './material';
 import { Planet } from './planet/planet';
 import {
   getDrawPos,
@@ -10,13 +14,17 @@ import {
 } from './position';
 import { Sprite } from './sprite';
 import { CameraTarget, LightSource } from './type';
-import GameObject, { ObjectPool } from './gameObject';
-import Bullet from './Bullet';
 
 const ALPHA = 0.1;
+const MAX_MOVE_SPEED = 0.2;
 
-export class Human extends GameObject implements CameraTarget, LightSource {
+export class Human
+  extends GameObject
+  implements CameraTarget, LightSource, Life
+{
   faceLeft = false;
+  maxHp: number = 100;
+  curHp: number = 100;
   speedY: number = 0;
   speedX: number = 0;
   pressState: 'left' | 'right' | 'none' = 'none';
@@ -46,14 +54,14 @@ export class Human extends GameObject implements CameraTarget, LightSource {
     }
     ctx.restore();
   });
-  gun: ObjectPool<Bullet> = new ObjectPool(([pos, speed, faceLeft]) => {
-    return new Bullet(pos, speed, faceLeft);
-  });
+  bullets: Bullet[] = [];
+  gun = new Gun(this);
 
   planet: Planet;
   constructor(planet: Planet) {
     super();
     this.planet = planet;
+    this.sprite = this.buildSprite(HumanMaterial);
     planet.addChild(this.sprite);
     planet.addLightSource(this);
     this.localPos = { x: 0, y: this.planet.r + 1 };
@@ -107,16 +115,6 @@ export class Human extends GameObject implements CameraTarget, LightSource {
     return xToRadian(this.localPos.x);
   }
 
-  fire() {
-    let bullet = this.gun.instantiate(
-      Bullet.reload(this.localPos, 5, this.faceLeft),
-      this.localPos,
-      5,
-      this.faceLeft,
-    ) as Bullet;
-    this.planet.addChild(bullet.sprite);
-  }
-
   move(x: number, y: number) {
     const localPos = this.localPos;
     let tried = 0;
@@ -144,7 +142,7 @@ export class Human extends GameObject implements CameraTarget, LightSource {
   }
 
   speedUp(x: number) {
-    this.speedX = clamp(this.speedX + x, -0.3, 0.3);
+    this.speedX = clamp(this.speedX + x, -MAX_MOVE_SPEED, MAX_MOVE_SPEED);
   }
 
   /**
@@ -241,8 +239,8 @@ export function addControl(human: Human) {
     }
 
     e.key === 'ArrowUp' && human.jump();
-    if (e.key === 'Control') {
-      human.fire();
+    if (e.key === 'c') {
+      human.gun.fire();
     }
   });
   document.addEventListener('keyup', (e) => {
