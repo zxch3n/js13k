@@ -42,9 +42,14 @@ export function radianToX(radian: number) {
   return (radian % (2 * Math.PI)) * SCALE_FACTOR;
 }
 
+export function distance(pos1: Position, pos2: Position){
+  return Math.hypot((pos1.x - pos2.x), (pos1.y - pos2.y))
+}
+
 /**
  * invert op of toLocal
  * @param localPos
+ * @param planetPos
  */
 export function toGlobal(
   localPos: LocalPosition,

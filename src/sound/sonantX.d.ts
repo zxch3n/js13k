@@ -1,0 +1,1 @@
+export async function generateSong (song, sampleRate)

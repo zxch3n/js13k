@@ -1,30 +1,30 @@
 import { Sprite } from './sprite';
-import {Position, xToRadian } from './position';
-import GameObject from './gameObject';
+import {Position, xToRadian, toGlobal } from './position';
+import GameObject, { GEvent, Life } from './gameObject';
+import { Zombie } from './zombie';
 
 export default class Bullet extends GameObject{
-  sprite:Sprite = new Sprite(Bullet.drawSelf(this))
+  damage = 20;
+  maxFlyDistance = 50;
+  speed = 2;
+  sprite:Sprite = new Sprite((ctx: CanvasRenderingContext2D)=>{
+    ctx.save();
+    ctx.fillStyle = 'orange';
+    ctx.rotate(xToRadian(this.localPos.x));
+    ctx.fillRect(-0.4, -0.2, 0.4, 0.2);
+    ctx.restore();
+    this.update();
+  })
   private flewDistance:number=0;
-  public speed: number;
   public faceLeft: boolean;
-  public damage: number=20;
-  public maxFlyDistance: number=50
-  constructor(pos: Position, speed: number, faceLeft: boolean) {
+
+
+  constructor(pos: Position, damage:number, maxFlyDistance: number, faceLeft: boolean) {
     super();
     this.localPos = pos;
-    this.speed = speed;
     this.faceLeft = faceLeft;
-  }
-
-  static drawSelf(bullet:Bullet){
-    return (ctx: CanvasRenderingContext2D)=>{
-      ctx.save();
-      ctx.fillStyle = 'orange';
-      ctx.rotate(xToRadian(bullet.localPos.x));
-      ctx.fillRect(-0.4, -0.2, 0.4, 0.2);
-      ctx.restore();
-      bullet.update();
-    }
+    this.maxFlyDistance = maxFlyDistance;
+    this.damage = damage;
   }
 
   move(x: number){
@@ -36,22 +36,31 @@ export default class Bullet extends GameObject{
     this.flewDistance += Math.abs(x);
   }
 
-  static reload(pos:Position, speed:number, faceLeft:boolean){
+  hit(target: Zombie){
+    target.curHp -= this.damage;
+    this.emit(new GEvent("bulletGG", this))
+    if (target.curHp <= 0){
+      target.emit(new GEvent("zombieDie", target))
+    }
+  }
+
+  static reload(pos:Position, damage: number, maxFlyDistance: number, faceLeft:boolean){
     return (bullet:Bullet) => {
       bullet.isAlive = true;
       bullet.localPos = pos;
-      bullet.speed = speed;
       bullet.lastUpdated = +new Date();
       bullet.faceLeft = faceLeft;
+      bullet.damage = damage;
+      bullet.maxFlyDistance = maxFlyDistance;
       bullet.flewDistance = 0;
-      bullet.sprite._draw = this.drawSelf(bullet);
     }
   }
 
   update(elapsed: number = (+new Date() - this.lastUpdated) / 60): void {
+    if(!this.isAlive)
+      return
     if (this.flewDistance >= this.maxFlyDistance){
-      this.isAlive = false;
-      this.sprite._draw = ()=>{}
+      this.emit(new GEvent("bulletGG", this))
     }
     this.lastUpdated = +new Date();
     this.move(this.speed * elapsed);
