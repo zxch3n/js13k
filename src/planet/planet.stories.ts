@@ -32,6 +32,7 @@ export default {
         min: 0.1,
         max: 128,
         step: 0.1,
+        default: 16,
       },
     },
   },

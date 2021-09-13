@@ -1,6 +1,13 @@
 import { range } from './atmosphere/range';
 import { Planet } from './planet/planet';
-import { LocalPosition, Position, toGlobal, xToRadian } from './position';
+import {
+  getDrawPos,
+  LocalPosition,
+  PIXEL_TO_GLOBAL_COORDINATE,
+  Position,
+  toGlobal,
+  xToRadian,
+} from './position';
 import { Sprite } from './sprite';
 import { CameraTarget, LightSource } from './type';
 
@@ -34,7 +41,6 @@ export class Human implements CameraTarget, LightSource {
       ctx.fillRect(-1, -2, 1, 2);
     }
     ctx.restore();
-    this.update();
   });
 
   planet: Planet;
@@ -42,7 +48,31 @@ export class Human implements CameraTarget, LightSource {
     this.planet = planet;
     planet.addChild(this.sprite);
     planet.addLightSource(this);
-    this.localPos = { x: 0, y: this.planet.r + 10 };
+    this.localPos = { x: 0, y: this.planet.r + 1 };
+    const sprite = this.sprite;
+    this.sprite.draw = (ctx) => {
+      this.update();
+      if (sprite.material) {
+        if (sprite.width * sprite.height === 0) {
+          sprite.width = sprite.material.width / PIXEL_TO_GLOBAL_COORDINATE;
+          sprite.height = sprite.material.height / PIXEL_TO_GLOBAL_COORDINATE;
+        }
+      }
+      ctx.save();
+      {
+        ctx.translate(0, 1); // TODO: why?
+        const radius = xToRadian(this.planetPos.x);
+        ctx.rotate(radius);
+        const translate = getDrawPos(this.planetPos.y, this.planet.r);
+        ctx.translate(0, -translate);
+        ctx.rotate(-radius);
+        ctx.scale(sprite.scale, sprite.scale);
+        ctx.translate(0, -sprite.height);
+        sprite._draw && sprite._draw(ctx);
+        sprite.children.forEach((x) => x.draw(ctx));
+      }
+      ctx.restore();
+    };
   }
 
   getLightPos(): LocalPosition {
@@ -98,11 +128,13 @@ export class Human implements CameraTarget, LightSource {
   /**
    * 对应脚站的地方
    */
+  private planetPos: LocalPosition = { x: 0, y: 0 };
   get localPos() {
-    return this.sprite.localPos();
+    return this.planetPos;
   }
 
   set localPos(pos: LocalPosition) {
+    this.planetPos = pos;
     this.sprite.pos = toGlobal(pos);
   }
 

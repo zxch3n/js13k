@@ -3,6 +3,7 @@ import { Light } from '../atmosphere/light';
 import { CacheDraw } from '../cacheDraw';
 import { getPlanetMaterial, getPlanetMaterialSurface } from '../material';
 import {
+  getDrawPos,
   GlobalPosition,
   LocalPosition,
   TILE_NUM,
@@ -49,13 +50,15 @@ export class Planet extends Sprite {
       ctx.rotate(xToRadian(local.x) - Math.PI / 2);
       size = (this.TILE_SIZE * local.y) / this.r / globalScale;
       const scale = size / 32;
-      let translateX: number;
-      if (local.y >= minY) {
-        translateX = minTranslateX;
-      } else {
-        minY = local.y;
-        translateX = minTranslateX - size;
-        minTranslateX = translateX;
+      let translateX: number = getDrawPos(local.y, this.r) - 1; // TODO: why;
+      if (globalScale < 16) {
+        if (local.y >= minY) {
+          translateX = minTranslateX;
+        } else {
+          minY = local.y;
+          translateX = minTranslateX - size;
+          minTranslateX = translateX;
+        }
       }
       ctx.translate(translateX - size / 2, -size / 2);
       if (!Planet.material) {
@@ -79,8 +82,9 @@ export class Planet extends Sprite {
     }
 
     ctx.beginPath();
-    ctx.arc(0, 0, minTranslateX - size / 2, 0, 2 * Math.PI, false);
+    // ctx.arc(0, 0, this.r * CORE_RATE, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'black';
+    ctx.closePath();
     ctx.fill();
     ctx.restore();
   };
@@ -111,7 +115,7 @@ export class Planet extends Sprite {
   private updateCache() {
     this.atmosphere.updateCache();
     this.light.updateCache();
-    this.cache.setSize(this.width, this.height);
+    this.cache.setSize(this.width + 100, this.height + 100);
     this.cache.setScale(this.cameraScale);
     this.cache.rotate = this.rotate;
   }

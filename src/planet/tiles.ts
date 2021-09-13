@@ -24,7 +24,7 @@ export class Tiles {
     for (let i = 0; i < this.width; i++) {
       const diff = Math.round(Math.random() * 2) - 1;
       last = last + diff;
-      last = Math.max(Math.min(last, this.r), this.r - 10);
+      last = Math.max(Math.min(last, this.r), this.r - 20);
       for (let j = last; j <= this.r; j++) {
         this.data[this.toIndex(i, j)] = TILE_EMPTY;
       }

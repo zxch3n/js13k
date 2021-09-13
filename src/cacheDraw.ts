@@ -41,7 +41,6 @@ export class CacheDraw {
     draw: (ctx: CanvasRenderingContext2D) => void,
   ) {
     if (!this.cached) {
-      console.log('DRAW');
       this.ctx.resetTransform();
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);

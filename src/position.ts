@@ -21,6 +21,43 @@ export interface Position {
 }
 
 export const TILE_NUM = 400;
+function getMappedPos() {
+  const r = 1;
+  const s = (2 * Math.PI * r) / TILE_NUM;
+  const arr = [] as number[];
+  let d = 0;
+  for (let i = 0; i < 200; i++) {
+    arr.push(d);
+    d = d + (s * (r - d)) / r;
+  }
+
+  return arr;
+}
+
+const mappedPos = getMappedPos();
+export function getDrawPos(y: number, r: number) {
+  if (r <= y) {
+    return y;
+  }
+
+  const d = r - y;
+  const floor = mappedPos[Math.floor(d)];
+  const ceil = mappedPos[Math.ceil(d)];
+  const sub = floor + (d - Math.floor(d)) * (ceil - floor);
+  return (1 - sub) * r;
+}
+
+export function getDrawSize(y: number, r: number) {
+  if (r <= y) {
+    return 1;
+  }
+
+  const floor = mappedPos[Math.floor(r - y)];
+  const ceil = mappedPos[Math.ceil(r - y)];
+  const sub = floor + (y - floor) * (ceil - floor);
+  return 1 - sub;
+}
+
 export const PIXEL_TO_GLOBAL_COORDINATE = 16;
 const SCALE_FACTOR = TILE_NUM / 2 / Math.PI;
 export function toLocal(
