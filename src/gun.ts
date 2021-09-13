@@ -2,7 +2,6 @@ import { Attacker, ObjectPool } from './gameObject';
 import Bullet from './Bullet';
 import { Position } from './position';
 import { Human } from './human';
-import playBulletSound from './sound/soundEffect';
 
 export class Gun extends ObjectPool<Bullet> implements Attacker {
   attackInterval = 300;
@@ -23,7 +22,7 @@ export class Gun extends ObjectPool<Bullet> implements Attacker {
     if (+new Date() - this.lastFireTime < this.attackInterval) {
       return;
     }
-    playBulletSound();
+    // playBulletSound();
     this.lastFireTime = date;
     let x;
     if (this.human.faceLeft) {

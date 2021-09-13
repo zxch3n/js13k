@@ -5,6 +5,7 @@ import { Planet } from './planet/planet';
 import { getPlanetMaterial } from './material';
 import { TILE_DIRT } from './planet/tiles';
 import ZombieSpawn from './zombie';
+import { Spaceship } from './spaceship';
 
 export default {
   title: 'Game/Human',
@@ -43,6 +44,7 @@ for (let i = 50; i > 30; i--) {
 }
 const human = new Human(planet);
 const zombieSpawn = new ZombieSpawn(human, planet);
+const spaceship = new Spaceship(planet, human);
 // human.setMaterial(HumanMaterial);
 stage.camera.focus(human);
 stage.addChild(planet);

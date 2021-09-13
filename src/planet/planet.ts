@@ -13,6 +13,7 @@ import {
 } from '../position';
 import { Sprite } from '../sprite';
 import { LightSource } from '../type';
+import { collide } from './collide';
 import { Tile, Tiles, TILE_DIRT, TILE_EMPTY } from './tiles';
 
 /**
@@ -229,13 +230,6 @@ export class Planet extends Sprite {
       }
     }
   }
-}
-
-function collide(pos: LocalPosition, b: GameObject) {
-  return (
-    Math.round(pos.x) === Math.round(b.localPos.x) &&
-    Math.round(pos.y) === Math.round(b.localPos.y)
-  );
 }
 
 export function getDistancesToCore(r: number, globalScale: number) {

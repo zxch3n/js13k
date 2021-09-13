@@ -183,6 +183,7 @@ export default abstract class GameObject {
 
   destroy() {
     this.planet.objects.delete(this);
+    this.sprite.destroy();
     console.log('DESTROY');
   }
 }

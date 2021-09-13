@@ -108,6 +108,7 @@ export class Sprite {
   }
 
   destroy() {
+    this.parent?.removeChild(this);
     this.parent = undefined;
     this.children.forEach((x) => x.destroy());
     this.children.length = 0;
