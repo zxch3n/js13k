@@ -9,7 +9,8 @@
   "source": "./src/index.ts",
   "scripts": {
     "test": "jest",
-    "build": "bash build.sh",
+    "build": "webpack --mode production",
+    "dist": "bash build.sh",
     "watch": "webpack -w",
     "clean": "rm -rf lib && rm -rf module && rm -rf deno_lib",
     "doc": "typedoc src/index.ts",
