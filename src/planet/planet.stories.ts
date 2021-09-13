@@ -32,6 +32,7 @@ export default {
         min: 0.1,
         max: 128,
         step: 0.1,
+        default: 16,
       },
     },
   },
@@ -50,7 +51,11 @@ canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
 stage.addChild(planet);
+planet.removeTile(0, 50);
 
+/**
+ * FIXME: CANNOT clear cache inside createPlanet
+ */
 function createPlanet({ x, y, scale }: Props) {
   ctx!.fillStyle = 'black';
   ctx!.fillRect(0, 0, 800, 600);
@@ -59,11 +64,11 @@ function createPlanet({ x, y, scale }: Props) {
 
   stage.camera.scale = Math.max(scale, 1);
   stage.draw();
-  requestAnimationFrame(function update() {
-    stage.draw();
-    planet.rotate += 0.02;
-    requestAnimationFrame(update);
-  });
+  // requestAnimationFrame(function update() {
+  //   stage.draw();
+  //   // planet.rotate += 0.002;
+  //   requestAnimationFrame(update);
+  // });
   return canvas;
 }
 

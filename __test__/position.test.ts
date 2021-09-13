@@ -4,6 +4,7 @@ import {
   toLocal,
   LocalPosition,
   GlobalPosition,
+  getDrawPos,
 } from '../src/position';
 describe('position', () => {
   it('convert correctly', () => {
@@ -23,5 +24,9 @@ describe('position', () => {
         roundPos(pos),
       );
     }
+  });
+
+  it('getDrawPos', () => {
+    expect(getDrawPos(45, 50)).toBeLessThan(getDrawPos(45.4, 50));
   });
 });

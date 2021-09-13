@@ -9,6 +9,7 @@ export class Camera {
   pos: Position;
   rotate = 0;
   scale = 1;
+  zoom = 1;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -22,13 +23,15 @@ export class Camera {
 
   update() {
     if (this.target) {
+      this.zoom =
+        (this.target.getCameraZoom && this.target.getCameraZoom()) || 1;
       this.pos = toMiddle(
         this.target.getCameraPos(),
         {
           x: this.width / 2,
           y: this.height / 2,
         },
-        this.scale,
+        this.scale * this.zoom,
       );
       this.rotate = -this.target.getCameraRotation();
     }
@@ -44,7 +47,7 @@ export class Camera {
     ctx.rotate(this.rotate);
     ctx.translate(-this.width * 0.5, -this.height * 0.5);
     ctx.translate(this.pos.x, this.pos.y);
-    ctx.scale(this.scale, this.scale);
+    ctx.scale(this.scale * this.zoom, this.scale * this.zoom);
     ctx.translate(-this.width * 0.5, -this.height * 0.5);
     drawContainer(ctx);
   }

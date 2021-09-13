@@ -46,6 +46,7 @@ export class CacheDraw {
       this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
       this.ctx.scale(this.scale, this.scale);
       draw(this.ctx);
+      this.ctx.resetTransform();
     }
 
     ctx.save();

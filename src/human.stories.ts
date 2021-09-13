@@ -3,6 +3,7 @@ import { addControl, Human } from './human';
 import { Stage } from './stage';
 import { Planet } from './planet/planet';
 import { getPlanetMaterial, HumanMaterial } from './material';
+import { TILE_DIRT } from './planet/tiles';
 
 export default {
   title: 'Game/Human',
@@ -32,6 +33,13 @@ canvas.width = 800;
 canvas.height = 600;
 const stage = new Stage(canvas);
 const planet = new Planet({ x: 0, y: 0 }, 50);
+planet.tiles.setTile(0, 50, { type: TILE_DIRT });
+planet.removeTile(0, 49);
+planet.removeTile(0, 48);
+planet.removeTile(0, 47);
+for (let i = 50; i > 30; i--) {
+  planet.removeTile(-1, i);
+}
 const human = new Human(planet);
 human.setMaterial(HumanMaterial);
 stage.camera.focus(human);
